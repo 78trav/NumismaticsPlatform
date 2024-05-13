@@ -2,7 +2,7 @@
 FROM ubuntu:22.04
 
 # Install Nginx
-RUN apt-get -y update && apt-get -y install nginx
+RUN apt-get -y update && apt-get -y install nginx && useradd nginx && apt-get clean
 
 # Copy the Nginx config
 COPY ./volumes/nginx/default.conf /etc/nginx/conf.d/

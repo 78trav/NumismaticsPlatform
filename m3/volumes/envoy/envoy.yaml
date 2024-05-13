@@ -38,7 +38,7 @@ static_resources:
                           issuer: http://localhost:8081/realms/numismatic
                           remote_jwks:
                             http_uri:
-                              uri: http://localhost:8081/realms/numismatic/protocol/openid-connect/certs
+                              uri: http://keycloak:8080/realms/numismatic/protocol/openid-connect/certs
                               cluster: keycloak
                               timeout: 5s
                             cache_duration:
@@ -67,13 +67,13 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: localhost
+                      address: app
                       port_value: 8080
 
     - name: keycloak
-      connect_timeout: 2s
+      connect_timeout: 1s
       type: LOGICAL_DNS
-      dns_lookup_family: V4_ONLY
+#      dns_lookup_family: V4_ONLY
       lb_policy: ROUND_ROBIN
       load_assignment:
         cluster_name: keycloak
@@ -82,5 +82,5 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: localhost
-                      port_value: 8081
+                      address: keycloak
+                      port_value: 8080
