@@ -1,0 +1,27 @@
+{
+  "realm" : "numismatic",
+  "users" : [ {
+    "id" : "89cf33bf-7892-474b-b040-95ee480e619e",
+    "username" : "test-user",
+    "firstName" : "First",
+    "lastName" : "User",
+    "email" : "trav78@yandex.ru",
+    "emailVerified" : true,
+    "createdTimestamp" : 1715162125374,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "12f1f146-e206-4cbd-958b-d7bb2f8a8893",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1715491381772,
+      "secretData" : "{\"value\":\"oEHKCNWSHQcFYMQpC4Brjb0ay3ceWSFTEc43WP1qnD62QgLevGNBYxsAASeBVgRaKxZ4BpIEEfN9q7G4/lak/g==\",\"salt\":\"4PeCewtJZfcaE2IcR0SDDQ==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-numismatic" ],
+    "notBefore" : 1715491455,
+    "groups" : [ "/users" ]
+  } ]
+}

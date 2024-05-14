@@ -1,0 +1,7 @@
+FROM keycloak/keycloak:24.0.3-0
+
+ADD ./volumes/keycloak/import /opt/keycloak/data/import/
+
+RUN /opt/keycloak/bin/kc.sh import --dir=/opt/keycloak/data/import/ --override true; exit 0
+
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "-v", "start-dev"]
