@@ -1,0 +1,139 @@
+## РЫНОЧНАЯ СТОИМОСТЬ
+
+create:
+  post:
+    tags:
+      - marketPrice
+    summary: Добавление рыночной стоимости лота
+    operationId: marketPriceAdd
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/MarketPriceCreateRequest'
+      required: true
+    responses:
+      200:
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: '#/MarketPriceResponse'
+
+read:
+  post:
+    tags:
+      - marketPrice
+    summary: Чтение рыночной стоимости лота
+    operationId: marketPriceRead
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/MarketPriceReadRequest'
+      required: true
+    responses:
+      200:
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: '#/MarketPriceResponse'
+
+delete:
+  post:
+    tags:
+      - marketPrice
+    summary: Удаление рыночной стоимости лота
+    operationId: marketPriceDelete
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/MarketPriceDeleteRequest'
+      required: true
+    responses:
+      200:
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: '#/MarketPriceResponse'
+
+IMarketPriceRequest:
+  type: object
+  allOf:
+    - $ref: './api-core.yaml#/components/schemas/IRequest'
+  discriminator:
+    propertyName: requestType
+    mapping:
+      create: '#/MarketPriceCreateRequest'
+      read: '#/MarketPriceReadRequest'
+      delete: '#/MarketPriceDeleteRequest'
+
+MarketPriceResponse:
+  type: object
+  allOf:
+    - $ref: './api-core.yaml#/components/schemas/IResponse'
+    - type: object
+      properties:
+        marketPrice:
+          type: array
+          items:
+            $ref: './api-core.yaml#/components/schemas/MarketPrice'
+
+# добавление
+MarketPriceCreateObject:
+  type: object
+  properties:
+    id:
+      description: Идентификатор лота
+      $ref: './api-core.yaml#/components/schemas/EntityId'
+    marketPrice:
+      $ref: './api-core.yaml#/components/schemas/MarketPrice'
+
+MarketPriceCreateRequest:
+  type: object
+  allOf:
+    - $ref: '#/IMarketPriceRequest'
+    - type: object
+      properties:
+        lot:
+          $ref: '#/MarketPriceCreateObject'
+
+# чтение
+MarketPriceReadObject:
+  type: object
+  properties:
+    id:
+      description: Идентификатор лота
+      $ref: './api-core.yaml#/components/schemas/EntityId'
+
+MarketPriceReadRequest:
+  type: object
+  allOf:
+    - $ref: '#/IMarketPriceRequest'
+    - type: object
+      properties:
+        lot:
+          $ref: '#/MarketPriceReadObject'
+
+# удаление
+MarketPriceDeleteObject:
+  type: object
+  properties:
+    id:
+      description: Идентификатор лота
+      $ref: './api-core.yaml#/components/schemas/EntityId'
+    date:
+      type: string
+      description: Дата
+
+MarketPriceDeleteRequest:
+  type: object
+  allOf:
+    - $ref: '#/IMarketPriceRequest'
+    - type: object
+      properties:
+        lot:
+          $ref: '#/MarketPriceDeleteObject'
