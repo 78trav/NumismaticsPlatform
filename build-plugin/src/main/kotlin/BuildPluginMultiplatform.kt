@@ -16,9 +16,9 @@ internal class BuildPluginMultiplatform : Plugin<Project> {
     override fun apply(project: Project) = with(project) {
 
         val pluginId = "org.jetbrains.kotlin.multiplatform"
-        val libs = project.the<LibrariesForLibs>()
 
         pluginManager.apply(pluginId)
+
         group = rootProject.group
         version = rootProject.version
 
@@ -27,7 +27,7 @@ internal class BuildPluginMultiplatform : Plugin<Project> {
                 configureTargets(this@with)
                 sourceSets.configureEach {
                     languageSettings.apply {
-                        languageVersion = libs.versions.kotlin.get()
+                        languageVersion = "1.9"
                         progressiveMode = true
                         optIn("kotlin.time.ExperimentalTime")
                     }
