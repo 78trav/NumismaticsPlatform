@@ -1,60 +1,40 @@
+package ru.numismatics.backend.api.v2.test
 
-import kotlinx.datetime.LocalDate
 import ru.numismatics.backend.api.v2.fromTransport
 import ru.numismatics.backend.api.v2.models.*
 import ru.numismatics.backend.api.v2.models.Condition
 import ru.numismatics.backend.api.v2.toTransport
 import ru.numismatics.backend.common.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
-import ru.numismatics.backend.common.models.core.EntityPermission
-import ru.numismatics.backend.common.models.core.Error
-import ru.numismatics.backend.common.models.core.stubs.Stubs
+import ru.numismatics.backend.common.models.core.EntityPermission as EntityPermissionInternal
 import ru.numismatics.backend.common.models.entities.Lot
-import ru.numismatics.backend.common.models.entities.asString
-import ru.numismatics.backend.common.models.entities.toLocalDate
-import ru.numismatics.backend.common.models.entities.toTransport
 import ru.numismatics.backend.common.models.id.*
+import ru.numismatics.backend.common.stubs.Stubs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import ru.numismatics.backend.common.models.core.Condition as ConditionInternal
-import ru.numismatics.backend.common.models.entities.MarketPrice as MarketPriceInternal
 
-class MapperLotTestV2 {
-
-    private val debug = Debug(
-        mode = RequestDebugMode.STUB,
-        stub = RequestDebugStubs.SUCCESS
-    )
-
-    private val error = Error(
-        code = "err",
-        group = "request",
-        field = "name",
-        message = "wrong name"
-    )
-
-    private val perm = mutableSetOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
+class MapperLotTestV2: TestValues() {
 
     @Test
-    fun `lot create request from transport`() {
+    fun `lot CREATE request from transport`() {
 
         // given
         val lotExt = LotCreateObjectV2(
-            name = "Киров 650",
-            description = "650-летие основания г. Кирова",
-            isCoin = true,
-            year = 2024,
-            catalogueNumber = "5111-0502",
-            denomination = "3 рубля",
-            weight = 31.1f,
+            name = lotInt.name,
+            description = lotInt.denomination,
+            coin = lotInt.isCoin,
+            year = lotInt.year.toInt(),
+            catalogueNumber = lotInt.catalogueNumber,
+            denomination = lotInt.denomination,
+            weight = lotInt.weight,
             condition = Condition.PF,
-            quantity = 1,
-            photos = listOf("фото1", "фото2"),
-            countryId = 2L,
-            materialId = 3L,
-            marketPrice = MarketPrice("20240607", 10000f),
-            sectionId = 73
+            quantity = lotInt.quantity.toInt(),
+            photos = listOf(PHOTO_1, PHOTO_2),
+            countryId = lotInt.countryId.toLong(),
+            materialId = lotInt.materialId.toLong(),
+            sectionId = lotInt.sectionId.toLong()
         )
 
         val req = LotCreateRequest(
@@ -65,7 +45,7 @@ class MapperLotTestV2 {
         val context = NumismaticsPlatformContext()
 
         // when
-        context.fromTransport(req as IRequest)
+        context.fromTransport(req as ILotRequest)
 
         // then
         assertEquals(Command.CREATE, context.command)
@@ -79,11 +59,11 @@ class MapperLotTestV2 {
 
         val lotInt = context.entityRequest as Lot
 
-        assertEquals(LotId.EMPTY, lotInt.id)
+        assertTrue(lotInt.id.isEmpty())
         assertEquals(lotExt.sectionId, lotInt.sectionId.toLong())
-        assertEquals(UserId.EMPTY, lotInt.ownerId)
-        assertEquals(LockId.NONE, lotInt.lock)
-        assertEquals(lotExt.isCoin, lotInt.isCoin)
+        assertTrue(lotInt.ownerId.isEmpty())
+        assertTrue(lotInt.lock.isEmpty())
+        assertEquals(lotExt.coin, lotInt.isCoin)
         assertEquals(lotExt.year, lotInt.year.toInt())
         assertEquals(lotExt.catalogueNumber, lotInt.catalogueNumber)
         assertEquals(lotExt.denomination, lotInt.denomination)
@@ -99,49 +79,16 @@ class MapperLotTestV2 {
         assertEquals(lotExt.countryId, lotInt.countryId.toLong())
         assertEquals(lotExt.materialId, lotInt.materialId.toLong())
 
-        assertEquals(1, lotInt.marketPrice.size)
-
-        assertEquals(lotExt.marketPrice?.date.toLocalDate(), lotInt.marketPrice[0].date)
-        assertEquals(lotExt.marketPrice?.amount, lotInt.marketPrice[0].amount)
+        assertTrue(lotInt.marketPrice.isEmpty())
     }
 
     @Test
-    fun `lot create response to transport`() {
+    fun `lot CREATE response to transport`() {
 
         // given
-        val lotInt = Lot(
-            id = LotId(100UL),
-            ownerId = UserId("34da1510-a17b-11e9-728d-00241d9157c0"),
-            name = "Киров 650",
-            description = "650-летие основания г. Кирова",
-            isCoin = true,
-            year = 2024U,
-            catalogueNumber = "5111-0502",
-            denomination = "3 рубля",
-            weight = 31.1f,
-            condition = ConditionInternal.PF,
-            quantity = 1U,
-            photos = mutableListOf(Base64String("фото1"), Base64String("фото2")),
-            countryId = CountryId(2U),
-            materialId = MaterialId(3U),
-            marketPrice = mutableListOf(MarketPriceInternal(LocalDate.parse("2024-06-07"), 10000f)),
-            sectionId = SectionId(73U)
-        ).apply {
-            permissions.addAll(perm)
-        }
-
-        val context = NumismaticsPlatformContext(
-            command = Command.CREATE,
-            state = State.RUNNING,
-            errors = mutableListOf(error),
-            requestType = RequestType.TEST,
-            requestId = RequestId("832"),
-            entityType = EntityType.LOT,
-            entityResponse = mutableListOf(lotInt)
-        )
 
         // when
-        val res = context.toTransport()
+        val res = filledContext.copy(command = Command.CREATE).toTransport()
 
         // then
         assertTrue(res is LotCreateResponse)
@@ -152,11 +99,11 @@ class MapperLotTestV2 {
         assertEquals(lotInt.id.toLong(), lotExt.id)
         assertEquals(lotInt.name, lotExt.name)
         assertEquals(lotInt.description, lotExt.description)
-        assertEquals(lotInt.isCoin, lotExt.isCoin)
+        assertEquals(lotInt.isCoin, lotExt.coin)
         assertEquals(lotInt.year.toInt(), lotExt.year)
         assertEquals(lotInt.catalogueNumber, lotExt.catalogueNumber)
         assertEquals(lotInt.denomination, lotExt.denomination)
-        assertEquals(lotInt.weight, lotExt.weight?.value)
+        assertEquals(lotInt.weight, lotExt.weight?.mass)
         assertEquals(lotInt.materialId.toLong(), lotExt.weight?.material?.id)
         assertEquals(Condition.PF, lotExt.condition)
         assertEquals(lotInt.quantity.toInt(), lotExt.quantity)
@@ -169,12 +116,11 @@ class MapperLotTestV2 {
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
         assertEquals(lotInt.sectionId.toLong(), lotExt.section?.id)
 
-        assertEquals(1, lotExt.marketPrice?.size)
-        assertEquals(lotInt.marketPrice[0].date.asString(), lotExt.marketPrice?.get(0)?.date)
-        assertEquals(lotInt.marketPrice[0].amount, lotExt.marketPrice?.get(0)?.amount)
-
+        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
         assertTrue(
-            lotExt.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
+            lotExt.permissions?.containsAll(
+                setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
+            ) ?: false
         )
 
         assertEquals(1, res.errors?.size)
@@ -185,25 +131,25 @@ class MapperLotTestV2 {
     }
 
     @Test
-    fun `lot update request from transport`() {
+    fun `lot UPDATE request from transport`() {
 
         // given
         val lotExt = LotUpdateObjectV2(
             id = 100,
-            name = "Киров 650",
-            description = "650-летие основания г. Кирова",
-            isCoin = true,
-            year = 2024,
-            catalogueNumber = "5111-0502",
-            denomination = "3 рубля",
-            weight = 31.1f,
+            name = lotInt.name,
+            description = lotInt.denomination,
+            coin = lotInt.isCoin,
+            year = lotInt.year.toInt(),
+            catalogueNumber = lotInt.catalogueNumber,
+            denomination = lotInt.denomination,
+            weight = lotInt.weight,
             condition = Condition.PF,
-            quantity = 1,
-            photos = listOf("фото1", "фото2"),
-            countryId = 2,
-            materialId = 3,
-            lock = "3458398",
-            sectionId = 75
+            quantity = lotInt.quantity.toInt(),
+            photos = listOf(PHOTO_1, PHOTO_2),
+            countryId = lotInt.countryId.toLong(),
+            materialId = lotInt.materialId.toLong(),
+            lock = lotInt.lock.asString(),
+            sectionId = lotInt.sectionId.toLong()
         )
 
         val req = LotUpdateRequest(
@@ -214,7 +160,7 @@ class MapperLotTestV2 {
         val context = NumismaticsPlatformContext()
 
         // when
-        context.fromTransport(req as IRequest)
+        context.fromTransport(req as ILotRequest)
 
         // then
         assertEquals(Command.UPDATE, context.command)
@@ -229,9 +175,9 @@ class MapperLotTestV2 {
         val lotInt = context.entityRequest as Lot
 
         assertEquals(lotExt.id, lotInt.id.toLong())
-        assertEquals(UserId.EMPTY, lotInt.ownerId)
+        assertTrue(lotInt.ownerId.isEmpty())
         assertEquals(lotExt.lock, lotInt.lock.asString())
-        assertEquals(lotExt.isCoin, lotInt.isCoin)
+        assertEquals(lotExt.coin, lotInt.isCoin)
         assertEquals(lotExt.year, lotInt.year.toInt())
         assertEquals(lotExt.catalogueNumber, lotInt.catalogueNumber)
         assertEquals(lotExt.denomination, lotInt.denomination)
@@ -248,47 +194,16 @@ class MapperLotTestV2 {
         assertEquals(lotExt.materialId, lotInt.materialId.toLong())
         assertEquals(lotExt.sectionId, lotInt.sectionId.toLong())
 
-        assertEquals(0, lotInt.marketPrice.size)
+        assertTrue(lotInt.marketPrice.isEmpty())
     }
 
     @Test
-    fun `lot update response to transport`() {
+    fun `lot UPDATE response to transport`() {
 
         // given
-        val lotInt = Lot(
-            id = LotId(100UL),
-            ownerId = UserId("34da1510-a17b-11e9-728d-00241d9157c0"),
-            name = "Киров 650",
-            description = "650-летие основания г. Кирова",
-            isCoin = true,
-            year = 2024U,
-            catalogueNumber = "5111-0502",
-            denomination = "3 рубля",
-            weight = 31.1f,
-            condition = ConditionInternal.PF,
-            quantity = 1U,
-            photos = mutableListOf(Base64String("фото1"), Base64String("фото2")),
-            countryId = CountryId(2U),
-            materialId = MaterialId(3U),
-            marketPrice = mutableListOf(MarketPriceInternal(LocalDate.parse("2024-06-07"), 10000f)),
-            lock = LockId("5698409"),
-            sectionId = SectionId(75U)
-        ).apply {
-            permissions.addAll(perm)
-        }
-
-        val context = NumismaticsPlatformContext(
-            command = Command.UPDATE,
-            state = State.RUNNING,
-            errors = mutableListOf(error),
-            requestType = RequestType.TEST,
-            requestId = RequestId("832"),
-            entityType = EntityType.LOT,
-            entityResponse = mutableListOf(lotInt)
-        )
 
         // when
-        val res = context.toTransport()
+        val res = filledContext.copy(command = Command.UPDATE).toTransport()
 
         // then
         assertTrue(res is LotUpdateResponse)
@@ -299,11 +214,11 @@ class MapperLotTestV2 {
         assertEquals(lotInt.id.toLong(), lotExt.id)
         assertEquals(lotInt.name, lotExt.name)
         assertEquals(lotInt.description, lotExt.description)
-        assertEquals(lotInt.isCoin, lotExt.isCoin)
+        assertEquals(lotInt.isCoin, lotExt.coin)
         assertEquals(lotInt.year.toInt(), lotExt.year)
         assertEquals(lotInt.catalogueNumber, lotExt.catalogueNumber)
         assertEquals(lotInt.denomination, lotExt.denomination)
-        assertEquals(lotInt.weight, lotExt.weight?.value)
+        assertEquals(lotInt.weight, lotExt.weight?.mass)
         assertEquals(lotInt.materialId.toLong(), lotExt.weight?.material?.id)
         assertEquals(Condition.PF, lotExt.condition)
         assertEquals(lotInt.quantity.toInt(), lotExt.quantity)
@@ -316,12 +231,11 @@ class MapperLotTestV2 {
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
         assertEquals(lotInt.sectionId.toLong(), lotExt.section?.id)
 
-        assertEquals(1, lotExt.marketPrice?.size)
-        assertEquals(lotInt.marketPrice[0].date.asString(), lotExt.marketPrice?.get(0)?.date)
-        assertEquals(lotInt.marketPrice[0].amount, lotExt.marketPrice?.get(0)?.amount)
-
+        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
         assertTrue(
-            lotExt.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
+            lotExt.permissions?.containsAll(
+                setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
+            ) ?: false
         )
 
         assertEquals(lotInt.lock.asString(), lotExt.lock)
@@ -334,7 +248,7 @@ class MapperLotTestV2 {
     }
 
     @Test
-    fun `lot read request from transport`() {
+    fun `lot READ request from transport`() {
 
         // given
         val lotExt = LotReadObject(
@@ -349,7 +263,7 @@ class MapperLotTestV2 {
         val context = NumismaticsPlatformContext()
 
         // when
-        context.fromTransport(req as IRequest)
+        context.fromTransport(req as ILotRequest)
 
         // then
         assertEquals(Command.READ, context.command)
@@ -364,9 +278,9 @@ class MapperLotTestV2 {
         val lotInt = context.entityRequest as Lot
 
         assertEquals(lotExt.id, lotInt.id.toLong())
-        assertEquals(SectionId.EMPTY, lotInt.sectionId)
-        assertEquals(UserId.EMPTY, lotInt.ownerId)
-        assertEquals("", lotInt.lock.asString())
+        assertTrue(lotInt.sectionId.isEmpty())
+        assertTrue(lotInt.ownerId.isEmpty())
+        assertTrue(lotInt.lock.isEmpty())
         assertEquals(true, lotInt.isCoin)
         assertEquals(0, lotInt.year.toInt())
         assertEquals("", lotInt.catalogueNumber)
@@ -376,51 +290,20 @@ class MapperLotTestV2 {
         assertEquals(1, lotInt.quantity.toInt())
         assertEquals(0, lotInt.photos.size)
 
-        assertEquals(CountryId.EMPTY, lotInt.countryId)
-        assertEquals(MaterialId.EMPTY, lotInt.materialId)
+        assertTrue(lotInt.countryId.isEmpty())
+        assertTrue(lotInt.materialId.isEmpty())
 
-        assertEquals(0, lotInt.marketPrice.size)
+        assertTrue(lotInt.marketPrice.isEmpty())
         assertEquals(0, lotInt.permissions.size)
     }
 
     @Test
-    fun `lot read response to transport`() {
+    fun `lot READ response to transport`() {
 
         // given
-        val lotInt = Lot(
-            id = LotId(100UL),
-            ownerId = UserId("34da1510-a17b-11e9-728d-00241d9157c0"),
-            name = "Киров 650",
-            description = "650-летие основания г. Кирова",
-            isCoin = true,
-            year = 2024U,
-            catalogueNumber = "5111-0502",
-            denomination = "3 рубля",
-            weight = 31.1f,
-            condition = ConditionInternal.PF,
-            quantity = 1U,
-            photos = mutableListOf(Base64String("фото1"), Base64String("фото2")),
-            countryId = CountryId(2U),
-            materialId = MaterialId(3U),
-            marketPrice = mutableListOf(MarketPriceInternal(LocalDate.parse("2024-06-07"), 10000f)),
-            lock = LockId("5698409"),
-            sectionId = SectionId(79U)
-        ).apply {
-            permissions.addAll(perm)
-        }
-
-        val context = NumismaticsPlatformContext(
-            command = Command.READ,
-            state = State.RUNNING,
-            errors = mutableListOf(error),
-            requestType = RequestType.TEST,
-            requestId = RequestId("832"),
-            entityType = EntityType.LOT,
-            entityResponse = mutableListOf(lotInt)
-        )
 
         // when
-        val res = context.toTransport()
+        val res = filledContext.copy(command = Command.READ).toTransport()
 
         // then
         assertTrue(res is LotReadResponse)
@@ -431,11 +314,11 @@ class MapperLotTestV2 {
         assertEquals(lotInt.id.toLong(), lotExt.id)
         assertEquals(lotInt.name, lotExt.name)
         assertEquals(lotInt.description, lotExt.description)
-        assertEquals(lotInt.isCoin, lotExt.isCoin)
+        assertEquals(lotInt.isCoin, lotExt.coin)
         assertEquals(lotInt.year.toInt(), lotExt.year)
         assertEquals(lotInt.catalogueNumber, lotExt.catalogueNumber)
         assertEquals(lotInt.denomination, lotExt.denomination)
-        assertEquals(lotInt.weight, lotExt.weight?.value)
+        assertEquals(lotInt.weight, lotExt.weight?.mass)
         assertEquals(lotInt.materialId.toLong(), lotExt.weight?.material?.id)
         assertEquals(Condition.PF, lotExt.condition)
         assertEquals(lotInt.quantity.toInt(), lotExt.quantity)
@@ -448,12 +331,11 @@ class MapperLotTestV2 {
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
         assertEquals(lotInt.sectionId.toLong(), lotExt.section?.id)
 
-        assertEquals(1, lotExt.marketPrice?.size)
-        assertEquals(lotInt.marketPrice[0].date.asString(), lotExt.marketPrice?.get(0)?.date)
-        assertEquals(lotInt.marketPrice[0].amount, lotExt.marketPrice?.get(0)?.amount)
-
+        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
         assertTrue(
-            lotExt.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
+            lotExt.permissions?.containsAll(
+                setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
+            ) ?: false
         )
 
         assertEquals(lotInt.lock.asString(), lotExt.lock)
@@ -466,7 +348,7 @@ class MapperLotTestV2 {
     }
 
     @Test
-    fun `lot delete request from transport`() {
+    fun `lot DELETE request from transport`() {
 
         // given
         val lotExt = LotDeleteObject(
@@ -481,7 +363,7 @@ class MapperLotTestV2 {
         val context = NumismaticsPlatformContext()
 
         // when
-        context.fromTransport(req as IRequest)
+        context.fromTransport(req as ILotRequest)
 
         // then
         assertEquals(Command.DELETE, context.command)
@@ -496,9 +378,9 @@ class MapperLotTestV2 {
         val lotInt = context.entityRequest as Lot
 
         assertEquals(lotExt.id, lotInt.id.toLong())
-        assertEquals(SectionId.EMPTY, lotInt.sectionId)
-        assertEquals(UserId.EMPTY, lotInt.ownerId)
-        assertEquals("", lotInt.lock.asString())
+        assertTrue(lotInt.sectionId.isEmpty())
+        assertTrue(lotInt.ownerId.isEmpty())
+        assertTrue(lotInt.lock.isEmpty())
         assertEquals(true, lotInt.isCoin)
         assertEquals(0, lotInt.year.toInt())
         assertEquals("", lotInt.catalogueNumber)
@@ -508,51 +390,20 @@ class MapperLotTestV2 {
         assertEquals(1, lotInt.quantity.toInt())
         assertEquals(0, lotInt.photos.size)
 
-        assertEquals(CountryId.EMPTY, lotInt.countryId)
-        assertEquals(MaterialId.EMPTY, lotInt.materialId)
+        assertTrue(lotInt.countryId.isEmpty())
+        assertTrue(lotInt.materialId.isEmpty())
 
-        assertEquals(0, lotInt.marketPrice.size)
+        assertTrue(lotInt.marketPrice.isEmpty())
         assertEquals(0, lotInt.permissions.size)
     }
 
     @Test
-    fun `lot delete response to transport`() {
+    fun `lot DELETE response to transport`() {
 
         // given
-        val lotInt = Lot(
-            id = LotId(100UL),
-            ownerId = UserId("34da1510-a17b-11e9-728d-00241d9157c0"),
-            name = "Киров 650",
-            description = "650-летие основания г. Кирова",
-            isCoin = true,
-            year = 2024U,
-            catalogueNumber = "5111-0502",
-            denomination = "3 рубля",
-            weight = 31.1f,
-            condition = ConditionInternal.PF,
-            quantity = 1U,
-            photos = mutableListOf(Base64String("фото1"), Base64String("фото2")),
-            countryId = CountryId(2U),
-            materialId = MaterialId(3U),
-            marketPrice = mutableListOf(MarketPriceInternal(LocalDate.parse("2024-06-07"), 10000f)),
-            lock = LockId("5698409"),
-            sectionId = SectionId(81U)
-        ).apply {
-            permissions.addAll(perm)
-        }
-
-        val context = NumismaticsPlatformContext(
-            command = Command.DELETE,
-            state = State.RUNNING,
-            errors = mutableListOf(error),
-            requestType = RequestType.TEST,
-            requestId = RequestId("832"),
-            entityType = EntityType.LOT,
-            entityResponse = mutableListOf(lotInt)
-        )
 
         // when
-        val res = context.toTransport()
+        val res = filledContext.copy(command = Command.DELETE).toTransport()
 
         // then
         assertTrue(res is LotDeleteResponse)
@@ -563,11 +414,11 @@ class MapperLotTestV2 {
         assertEquals(lotInt.id.toLong(), lotExt.id)
         assertEquals(lotInt.name, lotExt.name)
         assertEquals(lotInt.description, lotExt.description)
-        assertEquals(lotInt.isCoin, lotExt.isCoin)
+        assertEquals(lotInt.isCoin, lotExt.coin)
         assertEquals(lotInt.year.toInt(), lotExt.year)
         assertEquals(lotInt.catalogueNumber, lotExt.catalogueNumber)
         assertEquals(lotInt.denomination, lotExt.denomination)
-        assertEquals(lotInt.weight, lotExt.weight?.value)
+        assertEquals(lotInt.weight, lotExt.weight?.mass)
         assertEquals(lotInt.materialId.toLong(), lotExt.weight?.material?.id)
         assertEquals(Condition.PF, lotExt.condition)
         assertEquals(lotInt.quantity.toInt(), lotExt.quantity)
@@ -580,12 +431,11 @@ class MapperLotTestV2 {
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
         assertEquals(lotInt.sectionId.toLong(), lotExt.section?.id)
 
-        assertEquals(1, lotExt.marketPrice?.size)
-        assertEquals(lotInt.marketPrice[0].date.asString(), lotExt.marketPrice?.get(0)?.date)
-        assertEquals(lotInt.marketPrice[0].amount, lotExt.marketPrice?.get(0)?.amount)
-
+        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
         assertTrue(
-            lotExt.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
+            lotExt.permissions?.containsAll(
+                setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
+            ) ?: false
         )
 
         assertEquals(lotInt.lock.asString(), lotExt.lock)
@@ -598,19 +448,19 @@ class MapperLotTestV2 {
     }
 
     @Test
-    fun `lot search request from transport`() {
+    fun `lot SEARCH request from transport`() {
 
         // given
         val lotExt = LotSearchFilterV2(
-            name = "Киров 650",
-            description = "650-летие основания г. Кирова",
-            isCoin = true,
-            year = 2024,
-            denomination = "3 рубля",
+            name = lotInt.name,
+            description = lotInt.denomination,
+            coin = lotInt.isCoin,
+            year = lotInt.year.toInt(),
+            denomination = lotInt.denomination,
             condition = Condition.UNC,
-            countryId = 2L,
-            materialId = 3L,
-            sectionId = 83
+            countryId = lotInt.countryId.toLong(),
+            materialId = lotInt.materialId.toLong(),
+            sectionId = lotInt.sectionId.toLong()
         )
 
         val req = LotSearchRequest(
@@ -621,7 +471,7 @@ class MapperLotTestV2 {
         val context = NumismaticsPlatformContext()
 
         // when
-        context.fromTransport(req as IRequest)
+        context.fromTransport(req as ILotRequest)
 
         // then
         assertEquals(Command.SEARCH, context.command)
@@ -635,10 +485,10 @@ class MapperLotTestV2 {
 
         val lotInt = context.entityRequest as Lot
 
-        assertEquals(LotId.EMPTY, lotInt.id)
-        assertEquals(UserId.EMPTY, lotInt.ownerId)
-        assertEquals(LockId.NONE, lotInt.lock)
-        assertEquals(lotExt.isCoin, lotInt.isCoin)
+        assertTrue(lotInt.id.isEmpty())
+        assertTrue(lotInt.ownerId.isEmpty())
+        assertTrue(lotInt.lock.isEmpty())
+        assertEquals(lotExt.coin, lotInt.isCoin)
         assertEquals(lotExt.year, lotInt.year.toInt())
         assertEquals(lotExt.denomination, lotInt.denomination)
         assertEquals(ConditionInternal.UNC, lotInt.condition)
@@ -649,47 +499,23 @@ class MapperLotTestV2 {
 
         assertEquals(0, lotInt.permissions.size)
         assertEquals(0, lotInt.photos.size)
-        assertEquals(0, lotInt.marketPrice.size)
+        assertTrue(lotInt.marketPrice.isEmpty())
     }
 
     @Test
-    fun `lot search response to transport`() {
+    fun `lot SEARCH response to transport`() {
 
         // given
-        val lotInt = Lot(
-            id = LotId(100UL),
-            ownerId = UserId("34da1510-a17b-11e9-728d-00241d9157c0"),
-            name = "Киров 650",
-            description = "650-летие основания г. Кирова",
-            isCoin = true,
-            year = 2024U,
-            catalogueNumber = "5111-0502",
-            denomination = "3 рубля",
-            weight = 31.1f,
-            condition = ConditionInternal.UNC,
-            quantity = 1U,
-            photos = mutableListOf(Base64String("фото1"), Base64String("фото2")),
-            countryId = CountryId(2U),
-            materialId = MaterialId(3U),
-            marketPrice = mutableListOf(MarketPriceInternal(LocalDate.parse("2024-06-07"), 10000f)),
-            lock = LockId("762657263"),
-            sectionId = SectionId(83U)
-        ).apply {
-            permissions.addAll(perm)
-        }
-
-        val context = NumismaticsPlatformContext(
-            command = Command.SEARCH,
-            state = State.RUNNING,
-            errors = mutableListOf(error),
-            requestType = RequestType.TEST,
-            requestId = RequestId("832"),
-            entityType = EntityType.LOT,
-            entityResponse = mutableListOf(lotInt)
-        )
 
         // when
-        val res = context.toTransport()
+        val res = filledContext.copy(
+            command = Command.SEARCH,
+            entityResponse = mutableListOf(
+                lotInt.copy(condition = ConditionInternal.UNC).apply {
+                    permissions.add(EntityPermissionInternal.READ)
+                }
+            )
+        ).toTransport()
 
         // then
         assertTrue(res is LotSearchResponse)
@@ -701,11 +527,11 @@ class MapperLotTestV2 {
         assertEquals(lotInt.id.toLong(), lotExt.id)
         assertEquals(lotInt.name, lotExt.name)
         assertEquals(lotInt.description, lotExt.description)
-        assertEquals(lotInt.isCoin, lotExt.isCoin)
+        assertEquals(lotInt.isCoin, lotExt.coin)
         assertEquals(lotInt.year.toInt(), lotExt.year)
         assertEquals(lotInt.catalogueNumber, lotExt.catalogueNumber)
         assertEquals(lotInt.denomination, lotExt.denomination)
-        assertEquals(lotInt.weight, lotExt.weight?.value)
+        assertEquals(lotInt.weight, lotExt.weight?.mass)
         assertEquals(lotInt.materialId.toLong(), lotExt.weight?.material?.id)
         assertEquals(Condition.UNC, lotExt.condition)
         assertEquals(lotInt.quantity.toInt(), lotExt.quantity)
@@ -718,13 +544,8 @@ class MapperLotTestV2 {
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
         assertEquals(lotInt.sectionId.toLong(), lotExt.section?.id)
 
-        assertEquals(1, lotExt.marketPrice?.size)
-        assertEquals(lotInt.marketPrice[0].date.asString(), lotExt.marketPrice?.get(0)?.date)
-        assertEquals(lotInt.marketPrice[0].amount, lotExt.marketPrice?.get(0)?.amount)
-
-        assertTrue(
-            lotExt.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
-        )
+        assertEquals(1, lotExt.permissions?.size)
+        assertTrue(lotExt.permissions?.contains(EntityPermission.READ) ?: false)
 
         assertEquals(lotInt.lock.asString(), lotExt.lock)
 

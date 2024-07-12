@@ -7,45 +7,30 @@ import ru.numismatics.backend.common.models.core.EntityType
 import ru.numismatics.backend.common.models.core.State
 import ru.numismatics.backend.common.models.entities.Entities
 import ru.numismatics.backend.common.models.entities.Lot
-import ru.numismatics.backend.common.models.entities.asString
 import ru.numismatics.backend.common.models.entities.toTransport
 import ru.numismatics.backend.common.models.exception.UnknownCommand
 import ru.numismatics.backend.common.models.id.*
 import ru.numismatics.backend.common.models.core.Condition as ConditionInternal
 import ru.numismatics.backend.common.models.core.EntityPermission as PermissionInternal
 import ru.numismatics.backend.common.models.core.Error as ErrorInternal
-import ru.numismatics.backend.common.models.entities.MarketPrice as MarketPriceInternal
 
-fun NumismaticsPlatformContext.toTransport(): IResponse = when (entityType) {
-    EntityType.LOT ->
-        when (command) {
-            Command.CREATE -> lotCreateToTransport()
-            Command.READ -> lotReadToTransport()
-            Command.UPDATE -> lotUpdateToTransport()
-            Command.DELETE -> lotDeleteToTransport()
-            Command.SEARCH -> lotsToTransport()
-            else -> throw UnknownCommand(command, entityType)
-        }
-
-    EntityType.MARKET_PRICE ->
-        if (setOf(Command.CREATE, Command.READ, Command.DELETE).contains(command))
-            marketPriceToTransport()
-        else
-            throw UnknownCommand(command, entityType)
-
-    else -> throw UnknownCommand(command, entityType)
-}
-
-fun NumismaticsPlatformContext.marketPriceToTransport() = MarketPriceResponse(
-    result = state.toResult(),
-    errors = errors.toTransport(),
-    marketPrice = entityResponse
-        .filterIsInstance<Lot>()
-        .flatMap { it.marketPrice }
-        .map { it.toTransport() }
-)
+fun NumismaticsPlatformContext.toTransport(): ILotResponse =
+    if (command in setOf(Command.WS_INIT, Command.WS_CLOSE))
+        lotWsInitCloseToTransport()
+    else
+        if (entityType == EntityType.LOT)
+            when (command) {
+                Command.CREATE -> lotCreateToTransport()
+                Command.READ -> lotReadToTransport()
+                Command.UPDATE -> lotUpdateToTransport()
+                Command.DELETE -> lotDeleteToTransport()
+                Command.SEARCH -> lotsToTransport()
+                else -> throw UnknownCommand(command, entityType)
+            }
+        else throw UnknownCommand(command, entityType)
 
 fun NumismaticsPlatformContext.lotCreateToTransport() = LotCreateResponse(
+    responseType = "create",
     result = state.toResult(),
     errors = errors.toTransport(),
     lot = entityResponse.lotToTransport()
@@ -69,42 +54,52 @@ fun NumismaticsPlatformContext.lotDeleteToTransport() = LotDeleteResponse(
     lot = entityResponse.lotToTransport()
 )
 
+fun NumismaticsPlatformContext.lotWsInitCloseToTransport() = LotWSInitCloseResponse(
+    result = state.toResult(),
+    errors = errors.toTransport()
+)
+
 fun NumismaticsPlatformContext.lotsToTransport() = LotSearchResponse(
     result = state.toResult(),
     errors = errors.toTransport(),
     lots = entityResponse
         .filterIsInstance<Lot>()
         .map { it.toTransport() }
+        .takeIf { it.isNotEmpty() }
 )
 
-private fun Entities.lotToTransport() = this
-    .filterIsInstance<Lot>()
-    .first()
-    .toTransport()
+private fun Entities.lotToTransport() =
+    try {
+        this
+            .filterIsInstance<Lot>()
+            .first()
+            .toTransport()
+    } catch (_: Exception) {
+        null
+    }
 
-private fun Lot.toTransport() = LotResponse(
-    id = id.takeIf { it != LotId.EMPTY }?.toLong(),
+fun Lot.toTransport() = LotResponse(
+    id = id.takeIf { it.isNotEmpty() }?.toLong(),
     name = name.takeIf { it.isNotBlank() },
     description = description.takeIf { it.isNotBlank() },
-    isCoin = isCoin,
+    coin = isCoin,
     year = year.toInt(),
     catalogueNumber = catalogueNumber.takeIf { it.isNotBlank() },
     denomination = denomination.takeIf { it.isNotBlank() },
-    weight = takeIf { (weight > 0) || (materialId != MaterialId.EMPTY) }?.let {
+    weight = takeIf { (weight > 0) || (materialId.isNotEmpty()) }?.let {
         LotWeight(
-            weight,
-            Material(materialId.toLong())
+            material = Material(materialId.toLong()),
+            mass = weight
         )
     },
     condition = condition.toTransport(),
     serialNumber = serialNumber.takeIf { it.isNotBlank() },
     quantity = quantity.toInt(),
     photos = photos.map { it.asString() }.takeIf { it.isNotEmpty() },
-    ownerId = ownerId.takeIf { it != UserId.EMPTY }?.asString(),
-    country = takeIf { countryId != CountryId.EMPTY }?.let { Country(countryId.toLong()) },
-    marketPrice = marketPrice.map { MarketPrice(it.date.asString(), it.amount) }.takeIf { it.isNotEmpty() },
+    ownerId = ownerId.takeIf { it.isNotEmpty() }?.asString(),
+    country = takeIf { countryId.isNotEmpty() }?.let { Country(countryId.toLong()) },
     permissions = permissions.toTransport { it.toTransport() },
-    lock = lock.takeIf { it != LockId.NONE }?.asString()
+    lock = lock.takeIf { it.isNotEmpty() }?.asString()
 )
 
 private fun ConditionInternal.toTransport() = when (this) {
@@ -152,5 +147,3 @@ private fun State.toResult(): ResponseResult? = when (this) {
     State.FINISHING -> ResponseResult.SUCCESS
     else -> null
 }
-
-private fun MarketPriceInternal.toTransport() = MarketPrice(date.asString(), amount)

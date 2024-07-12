@@ -30,6 +30,7 @@ allprojects {
 ext {
     val specDir = layout.projectDirectory.dir("../specs")
     set("api-refs", specDir.file("api-references.yaml").toString())
+    set("api-market-price", specDir.file("api-market_price.yaml").toString())
     set("api-v1", specDir.file("api-v1.yaml").toString())
     set("api-v2", specDir.file("api-v2.yaml").toString())
 }

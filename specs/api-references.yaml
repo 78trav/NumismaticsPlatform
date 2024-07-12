@@ -9,7 +9,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8080/refs
+  - url: http://localhost:8080/ref
 
 tags:
   - name: country
@@ -182,6 +182,8 @@ components:
           read: '#/components/schemas/ReferenceReadResponse'
           update: '#/components/schemas/ReferenceUpdateResponse'
           delete: '#/components/schemas/ReferenceDeleteResponse'
+          ws_init: '#/components/schemas/ReferenceWSInitCloseResponse'
+          ws_close: '#/components/schemas/ReferenceWSInitCloseResponse'
 
     ItemResponse:
       type: object
@@ -249,9 +251,9 @@ components:
               $ref: '#/components/schemas/ReadIdType'
             id:
               $ref: './api-core.yaml#/components/schemas/EntityId'
-          required:
-            - referenceType
-            - idType
+#          required:
+#            - referenceType
+#            - idType
 
     ReferenceReadResponse:
       type: object
@@ -275,9 +277,9 @@ components:
               $ref: '#/components/schemas/ReferenceType'
             id:
               $ref: './api-core.yaml#/components/schemas/EntityId'
-          required:
-            - referenceType
-            - id
+#          required:
+#            - referenceType
+#            - id
 
     ReferenceDeleteResponse:
       type: object
@@ -287,3 +289,9 @@ components:
           properties:
             item:
               $ref: '#/components/schemas/ItemResponse'
+
+    # инициализация и закрытие
+    ReferenceWSInitCloseResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceResponse'

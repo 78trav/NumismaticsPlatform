@@ -1,11 +1,13 @@
+package ru.numismatics.backend.api.refs.test
 
 import ru.numismatics.backend.api.references.*
 import ru.numismatics.backend.api.refs.models.*
 import ru.numismatics.backend.common.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
-import ru.numismatics.backend.common.models.core.stubs.Stubs
 import ru.numismatics.backend.common.models.entities.toTransport
 import ru.numismatics.backend.common.models.id.*
+import ru.numismatics.backend.common.stubs.Stubs
+import ru.numismatics.backend.stub.StubProcessor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -24,7 +26,7 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
             debug = debug,
             referenceType = ReferenceType.MATERIAL
         )
-        val valueId = MaterialId.from(req.id)
+        val valueId = req.id.toMaterialId()
 
         val context = NumismaticsPlatformContext()
 
@@ -47,7 +49,7 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
     fun `material to transport`() {
 
         // given
-        val referenceIn = referencesInternal[EntityType.MATERIAL] as MaterialInternal
+        val referenceIn = StubProcessor.materials.first()
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -73,7 +75,7 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
         assertEquals(referenceIn.probe, referenceOut.probe)
 
         assertTrue(
-            res.item?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
+            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
         )
 
         assertEquals(1, res.errors?.size)
@@ -92,7 +94,7 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
             debug = debug,
             referenceType = ReferenceType.COUNTRY
         )
-        val valueId = CountryId.from(req.id)
+        val valueId = req.id.toCountryId()
 
         val context = NumismaticsPlatformContext()
 
@@ -114,7 +116,7 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
     fun `country to transport`() {
 
         // given
-        val referenceIn = referencesInternal[EntityType.COUNTRY] as CountryInternal
+        val referenceIn = StubProcessor.countries.first()
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -139,7 +141,7 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
         assertEquals(referenceIn.description, referenceOut.description)
 
         assertTrue(
-            res.item?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
+            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
         )
 
         assertEquals(1, res.errors?.size)
@@ -158,7 +160,7 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
             debug = debug,
             referenceType = ReferenceType.SECTION
         )
-        val valueId = SectionId.from(req.id)
+        val valueId = req.id.toSectionId()
 
         val context = NumismaticsPlatformContext()
 
@@ -181,7 +183,7 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
     fun `section to transport`() {
 
         // given
-        val referenceIn = referencesInternal[EntityType.SECTION] as SectionInternal
+        val referenceIn = StubProcessor.sections.first()
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -207,7 +209,7 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
         assertEquals(referenceIn.parentId.toLong(), referenceOut.parentId)
 
         assertTrue(
-            res.item?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
+            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
         )
 
         assertEquals(1, res.errors?.size)
