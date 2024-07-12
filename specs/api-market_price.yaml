@@ -1,0 +1,166 @@
+## РЫНОЧНАЯ СТОИМОСТЬ
+
+openapi: 3.0.3
+
+info:
+  title: "Numismatics platform ${VERSION_APP}"
+  description: This is a place where numismatists can catalog, sell, buy and change their coins and banknotes.
+  license:
+    name: GPL
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/marketPrice
+
+tags:
+  - name: marketPrice
+    description: Рыночная стоимость
+
+paths:
+
+  /create:
+    post:
+      tags:
+        - marketPrice
+      summary: Добавление рыночной стоимости лота
+      operationId: marketPriceAdd
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketPriceCreateRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketPriceResponse'
+
+  /read:
+    post:
+      tags:
+        - marketPrice
+      summary: Чтение рыночной стоимости лота
+      operationId: marketPriceRead
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketPriceReadRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketPriceResponse'
+
+  /delete:
+    post:
+      tags:
+        - marketPrice
+      summary: Удаление рыночной стоимости лота
+      operationId: marketPriceDelete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketPriceDeleteRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketPriceResponse'
+
+components:
+
+  schemas:
+
+    IMarketPriceRequest:
+      type: object
+      properties:
+        debug:
+          $ref: './api-core.yaml#/components/schemas/Debug'
+        requestType:
+          description: Поле-дескриминатор для вычисления типа запроса
+          type: string
+      discriminator:
+        propertyName: requestType
+        mapping:
+          create: '#/components/schemas/MarketPriceCreateRequest'
+          read: '#/components/schemas/MarketPriceReadRequest'
+          delete: '#/components/schemas/MarketPriceDeleteRequest'
+
+    MarketPriceResponse:
+      type: object
+      allOf:
+        - $ref: './api-core.yaml#/components/schemas/Response'
+        - type: object
+          properties:
+            marketPrice:
+              type: array
+              items:
+                $ref: './api-core.yaml#/components/schemas/MarketPrice'
+
+    # добавление
+    MarketPriceCreateObject:
+      type: object
+      properties:
+        id:
+          description: Идентификатор лота
+          $ref: './api-core.yaml#/components/schemas/EntityId'
+        marketPrice:
+          $ref: './api-core.yaml#/components/schemas/MarketPrice'
+
+    MarketPriceCreateRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IMarketPriceRequest'
+        - type: object
+          properties:
+            lot:
+              $ref: '#/components/schemas/MarketPriceCreateObject'
+
+    # чтение
+    MarketPriceReadObject:
+      type: object
+      properties:
+        id:
+          description: Идентификатор лота
+          $ref: './api-core.yaml#/components/schemas/EntityId'
+
+    MarketPriceReadRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IMarketPriceRequest'
+        - type: object
+          properties:
+            lot:
+              $ref: '#/components/schemas/MarketPriceReadObject'
+
+    # удаление
+    MarketPriceDeleteObject:
+      type: object
+      properties:
+        id:
+          description: Идентификатор лота
+          $ref: './api-core.yaml#/components/schemas/EntityId'
+        date:
+          type: string
+          description: Дата
+
+    MarketPriceDeleteRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IMarketPriceRequest'
+        - type: object
+          properties:
+            lot:
+              $ref: '#/components/schemas/MarketPriceDeleteObject'

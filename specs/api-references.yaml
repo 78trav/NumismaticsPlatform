@@ -1,0 +1,297 @@
+openapi: 3.0.3
+
+info:
+  title: "Numismatics platform ${VERSION_APP}"
+  description: This is a place where numismatists can catalog, sell, buy and change their coins and banknotes.
+  license:
+    name: GPL
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/ref
+
+tags:
+  - name: country
+    description: Страна
+  - name: material
+    description: Материал изготовления
+
+paths:
+
+  /create:
+    post:
+      summary: Создание элемента справочника
+      operationId: referenceCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferenceCreateRequest'
+        required: true
+      responses:
+        200:
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReferenceCreateResponse'
+
+  /update:
+    post:
+      summary: Изменение элемента справочника
+      operationId: referenceUpdate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferenceUpdateRequest'
+        required: true
+      responses:
+        200:
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReferenceUpdateResponse'
+
+  /read:
+    post:
+      summary: Чтение элементов справочника
+      operationId: referenceRead
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferenceReadRequest'
+        required: true
+      responses:
+        200:
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReferenceReadResponse'
+
+  /delete:
+    post:
+      summary: Удаление элемента справочника
+      operationId: referenceDelete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferenceDeleteRequest'
+        required: true
+      responses:
+        200:
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReferenceDeleteResponse'
+
+components:
+
+  schemas:
+
+    ReferenceType:
+      description: Тип справочника
+      type: string
+      enum:
+        - country
+        - material
+        - section
+
+    IReference:
+      description: Справочник
+      type: object
+      allOf:
+        - $ref: './api-core.yaml#/components/schemas/Entity'
+        - type: object
+          properties:
+            referenceType:
+              $ref: '#/components/schemas/ReferenceType'
+      discriminator:
+        propertyName: referenceType
+        mapping:
+          country: '#/components/schemas/Country'
+          material: '#/components/schemas/Material'
+          section: '#/components/schemas/Section'
+
+    Country:
+      description: Страна
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReference'
+
+    Material:
+      description: Материал
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReference'
+        - type: object
+          properties:
+            probe:
+              description: Проба
+              type: number
+              format: float
+
+    Section:
+      description: Раздел коллекции
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReference'
+        - type: object
+          properties:
+            parentId:
+              description: Родитель раздела (0 - корневой)
+              $ref: './api-core.yaml#/components/schemas/EntityId'
+
+    IReferenceRequest:
+      description: Базовый интерфейс для всех запросов работы со справочниками
+      type: object
+      properties:
+        debug:
+          $ref: './api-core.yaml#/components/schemas/Debug'
+        requestType:
+          description: Поле-дескриминатор для вычисления типа запроса
+          type: string
+      discriminator:
+        propertyName: requestType
+        mapping:
+          create: '#/components/schemas/ReferenceCreateRequest'
+          read: '#/components/schemas/ReferenceReadRequest'
+          update: '#/components/schemas/ReferenceUpdateRequest'
+          delete: '#/components/schemas/ReferenceDeleteRequest'
+
+    IReferenceResponse:
+      description: Базовый интерфейс для всех ответов работы со справочниками
+      type: object
+      allOf:
+        - $ref: './api-core.yaml#/components/schemas/Response'
+        - type: object
+          properties:
+            responseType:
+              description: Поле-дескриминатор для вычисления типа запроса
+              type: string
+      discriminator:
+        propertyName: responseType
+        mapping:
+          create: '#/components/schemas/ReferenceCreateResponse'
+          read: '#/components/schemas/ReferenceReadResponse'
+          update: '#/components/schemas/ReferenceUpdateResponse'
+          delete: '#/components/schemas/ReferenceDeleteResponse'
+          ws_init: '#/components/schemas/ReferenceWSInitCloseResponse'
+          ws_close: '#/components/schemas/ReferenceWSInitCloseResponse'
+
+    ItemResponse:
+      type: object
+      properties:
+        reference:
+          $ref: '#/components/schemas/IReference'
+        permissions:
+          $ref: './api-core.yaml#/components/schemas/Permissions'
+
+    # создание элемента справочника
+    ReferenceCreateRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceRequest'
+        - type: object
+          properties:
+            reference:
+              $ref: '#/components/schemas/IReference'
+
+    ReferenceCreateResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceResponse'
+        - type: object
+          properties:
+            item:
+              $ref: '#/components/schemas/ItemResponse'
+
+    # изменение элемента справочника
+    ReferenceUpdateRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceRequest'
+        - type: object
+          properties:
+            reference:
+              $ref: '#/components/schemas/IReference'
+
+    ReferenceUpdateResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceResponse'
+        - type: object
+          properties:
+            item:
+              $ref: '#/components/schemas/ItemResponse'
+
+    # чтение элементов справочника
+    ReadIdType:
+      description: Тип идентификатора
+      type: string
+      enum:
+        - self # сам
+        - parent # родитель
+
+    ReferenceReadRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceRequest'
+        - type: object
+          properties:
+            referenceType:
+              $ref: '#/components/schemas/ReferenceType'
+            idType:
+              $ref: '#/components/schemas/ReadIdType'
+            id:
+              $ref: './api-core.yaml#/components/schemas/EntityId'
+#          required:
+#            - referenceType
+#            - idType
+
+    ReferenceReadResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceResponse'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ItemResponse'
+
+    # удаление элемента справочника
+    ReferenceDeleteRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceRequest'
+        - type: object
+          properties:
+            referenceType:
+              $ref: '#/components/schemas/ReferenceType'
+            id:
+              $ref: './api-core.yaml#/components/schemas/EntityId'
+#          required:
+#            - referenceType
+#            - id
+
+    ReferenceDeleteResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceResponse'
+        - type: object
+          properties:
+            item:
+              $ref: '#/components/schemas/ItemResponse'
+
+    # инициализация и закрытие
+    ReferenceWSInitCloseResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/IReferenceResponse'

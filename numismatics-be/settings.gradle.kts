@@ -10,10 +10,10 @@ dependencyResolutionManagement {
 
 pluginManagement {
     includeBuild("../build-plugin")
-//    plugins {
-//        id("build-jvm") apply false
-//        id("build-kmp") apply false
-//    }
+    plugins {
+        id("build-jvm") apply false
+        id("build-kmp") apply false
+    }
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -26,4 +26,17 @@ plugins {
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include(":numismatics-tmp")
+listOf(
+    "tmp",
+    "api-v1",
+    "api-v2",
+    "api-v2-mapper",
+    "api-references",
+    "api-marketprice",
+    "common",
+    "ktor",
+    "biz",
+    "stubs"
+).forEach {
+    include(":numismatics-be-$it")
+}

@@ -1,0 +1,192 @@
+openapi: 3.0.3
+
+info:
+  title: "Numismatics platform ${VERSION_APP}"
+  description: This is a place where numismatists can catalog, sell, buy and change their coins and banknotes.
+  license:
+    name: GPL
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  version: 1.0.0
+
+paths: {}
+
+components:
+
+  schemas:
+
+    UserId:
+      description: Идентификатор пользователя
+      type: string
+
+    EntityId:
+      description: Идентификатор сущности
+      type: integer
+      format: int64
+      minimum: 0
+
+    EntityLock:
+      description: Версия оптимистичной блокировки
+      type: string
+
+    Entity:
+      description: Общие свойства сущности
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/EntityId'
+        name:
+          description: Краткое название
+          type: string
+        description:
+          description: Описание
+          type: string
+
+    DealType:
+      description: Тип сделки
+      type: string
+      enum:
+        - change # обмен
+        - sale # продажа
+
+    EntityPermission:
+      description: Доступые для клиента операции над сущностью
+      type: string
+      enum:
+        - create
+        - read
+        - update
+        - delete
+
+    Permissions:
+      description: Права
+      type: array
+      uniqueItems: true
+      items:
+        $ref: '#/components/schemas/EntityPermission'
+
+    Condition:
+      description: Состояние лота
+      type: string
+      enum:
+        - PF
+        - PL
+        - BU
+        - UNC
+        - AU+
+        - AU
+        - XF+
+        - XF
+        - VF+
+        - VF
+        - F
+        - VG
+        - G
+        - AG
+        - FA
+        - PR
+
+    MarketPrice:
+      description: Рыночная стоимость
+      type: object
+      properties:
+        date:
+          description: Дата
+          type: string
+        amount:
+          description: Сумма в рублях
+          type: number
+          format: float
+
+    Base64String:
+      description: Строка в base64
+      type: string
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        group:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+
+    ResponseResult:
+      type: string
+      enum:
+        - success
+        - error
+
+    Response:
+      description: Базовый объект для всех ответов
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/ResponseResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+
+    RequestDebugMode:
+      type: string
+      enum:
+        - prod
+        - test
+        - stub
+
+    RequestDebug:
+      type: object
+      properties:
+        debug:
+          $ref: '#/components/schemas/RequestDebugMode'
+
+    Debug:
+      type: object
+      properties:
+        mode:
+          $ref: '#/components/schemas/RequestDebugMode'
+        stub:
+          $ref: '#/components/schemas/RequestDebugStubs'
+
+    RequestDebugStubs:
+      description: Перечисления всех стабов
+      type: string
+      enum:
+        - success
+        - notFound
+        - badId
+        - badName
+        - badDescription
+        - badVisibility
+        - badSearch
+        - cannotCreate
+        - cannotUpdate
+        - cannotDelete
+
+#    IRequest:
+#      description: Базовый интерфейс для всех запросов
+#      type: object
+#      properties:
+#        debug:
+#          $ref: '#/components/schemas/Debug'
+#        requestType:
+#          description: Поле-дескриминатор для вычисления типа запроса
+#          type: string
+#      discriminator:
+#        propertyName: requestType
+#
+#    IResponse:
+#      description: Базовый интерфейс для всех ответов
+#      type: object
+#      allOf:
+#        - $ref: '#/components/schemas/Response'
+#        - type: object
+#          properties:
+#            responseType:
+#              description: Поле-дескриминатор для вычисления типа запроса
+#              type: string
+#          discriminator:
+#            propertyName: responseType

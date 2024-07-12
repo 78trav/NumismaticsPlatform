@@ -1,0 +1,431 @@
+openapi: 3.0.3
+
+info:
+  title: "Numismatics platform ${VERSION_APP}"
+  description: This is a place where numismatists can catalog, sell, buy and change their coins and banknotes.
+  license:
+    name: GPL
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/v1
+
+tags:
+  - name: lot
+    description: Элемент коллекции
+
+paths:
+
+  /create:
+    post:
+      tags:
+        - lot
+      summary: Create lot
+      operationId: lotCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LotCreateRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LotCreateResponse'
+
+  /read:
+    post:
+      tags:
+        - lot
+      summary: Read lot
+      operationId: lotRead
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LotReadRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LotReadResponse'
+
+  /update:
+    post:
+      tags:
+        - lot
+      summary: Update lot
+      operationId: lotUpdate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LotUpdateRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LotUpdateResponse'
+
+  /delete:
+    post:
+      tags:
+        - lot
+      summary: Delete lot
+      operationId: lotDelete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LotDeleteRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LotDeleteResponse'
+
+  /search:
+    post:
+      tags:
+        - lot
+      summary: Search lots
+      operationId: lotsSearch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LotSearchRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LotSearchResponse'
+
+components:
+
+  schemas:
+
+    ## ЛОТЫ
+    Year:
+      description: Год выпуска (0 - не указан)
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 2099
+
+    Weight:
+      description: Масса в граммах
+      type: number
+      format: float
+      minimum: 0
+
+    LotWeight:
+      description: Масса лота в граммах
+      type: object
+      properties:
+        mass:
+          description: Значение массы (0 - не указано)
+          $ref: '#/components/schemas/Weight'
+        material:
+          description: Материал изготовления
+          $ref: './api-references.yaml#/components/schemas/Material'
+#      required:
+#        - value
+#        - material
+
+    ILotRequest:
+      description: Базовый интерфейс для всех запросов работы с лотами
+      type: object
+      properties:
+        debug:
+          $ref: './api-core.yaml#/components/schemas/Debug'
+        requestType:
+          description: Поле-дескриминатор для вычисления типа запроса
+          type: string
+      discriminator:
+        propertyName: requestType
+        mapping:
+          create: '#/components/schemas/LotCreateRequest'
+          read: '#/components/schemas/LotReadRequest'
+          update: '#/components/schemas/LotUpdateRequest'
+          delete: '#/components/schemas/LotDeleteRequest'
+          search: '#/components/schemas/LotSearchRequest'
+
+    ILotResponse:
+      description: Базовый интерфейс для всех ответов работы с лотами
+      type: object
+      allOf:
+        - $ref: './api-core.yaml#/components/schemas/Response'
+        - type: object
+          properties:
+            responseType:
+              description: Поле-дескриминатор для вычисления типа запроса
+              type: string
+          discriminator:
+            propertyName: responseType
+            mapping:
+              create: '#/components/schemas/LotCreateResponse'
+              read: '#/components/schemas/LotReadResponse'
+              update: '#/components/schemas/LotUpdateResponse'
+              delete: '#/components/schemas/LotDeleteResponse'
+              search: '#/components/schemas/LotSearchResponse'
+              ws_init: '#/components/schemas/LotWSInitCloseResponse'
+              ws_close: '#/components/schemas/LotWSInitCloseResponse'
+
+    CommonLotProperties:
+      description: Общие свойства элемента коллекции
+      type: object
+      allOf:
+        - $ref: './api-core.yaml#/components/schemas/Entity'
+        - type: object
+          properties:
+            coin:
+              description: Банкнота (false) или монета (true)
+              type: boolean
+            year:
+              description: Год выпуска
+              $ref: '#/components/schemas/Year'
+            catalogueNumber:
+              description: Каталожный номер
+              type: string
+            denomination:
+              description: Номинал
+              type: string
+            weight:
+              description: Масса
+              $ref: '#/components/schemas/Weight'
+            condition:
+              description: Состояние лота
+              $ref: './api-core.yaml#/components/schemas/Condition'
+            serialNumber:
+              description: Серийный номер или сертификат
+              type: string
+            quantity:
+              description: Количество
+              type: integer
+              format: int32
+              minimum: 1
+            photos:
+              description: Фотографии
+              type: array
+              items:
+                $ref: './api-core.yaml#/components/schemas/Base64String'
+
+    LotResponse:
+      description: Базовый объект ответа о лоте
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CommonLotProperties'
+        - type: object
+          properties:
+            ownerId:
+              description: Идентификатор владельца
+              $ref: './api-core.yaml#/components/schemas/UserId'
+            weight:
+              description: Масса
+              $ref: '#/components/schemas/LotWeight'
+            country:
+              description: Страна
+              $ref: './api-references.yaml#/components/schemas/Country'
+#            marketPrice:
+#              description: Рыночная стоимость
+#              type: array
+#              items:
+#                $ref: './api-core.yaml#/components/schemas/MarketPrice'
+            lock:
+              description: Блокировка
+              $ref: './api-core.yaml#/components/schemas/EntityLock'
+            permissions:
+              description: Права
+              $ref: './api-core.yaml#/components/schemas/Permissions'
+
+    OneLotResponse:
+      description: Ответ с одним лотом
+      type: object
+      properties:
+        lot:
+          $ref: '#/components/schemas/LotResponse'
+
+    ManyLotsResponse:
+      description: Ответ с несколькими лотами
+      type: object
+      properties:
+        lots:
+          type: array
+          items:
+            $ref: '#/components/schemas/LotResponse'
+
+    # создание лота
+    LotCreateObject:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CommonLotProperties'
+        - type: object
+          properties:
+            countryId:
+              description: Идентификатор страны
+              $ref: './api-core.yaml#/components/schemas/EntityId'
+            materialId:
+              description: Идентификатор материала
+              $ref: './api-core.yaml#/components/schemas/EntityId'
+#            marketPrice:
+#              description: Рыночная стоимость
+#              $ref: './api-core.yaml#/components/schemas/MarketPrice'
+
+    LotCreateRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotRequest'
+        - type: object
+          properties:
+            lot:
+              $ref: '#/components/schemas/LotCreateObject'
+
+    LotCreateResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotResponse'
+        - $ref: '#/components/schemas/OneLotResponse'
+
+    # чтение лота
+    LotReadObject:
+      type: object
+      properties:
+        id:
+          $ref: './api-core.yaml#/components/schemas/EntityId'
+
+    LotReadRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotRequest'
+        - type: object
+          properties:
+            lot:
+              $ref: '#/components/schemas/LotReadObject'
+
+    LotReadResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotResponse'
+        - $ref: '#/components/schemas/OneLotResponse'
+
+    # изменение лота
+    LotUpdateObject:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CommonLotProperties'
+        - type: object
+          properties:
+            countryId:
+              description: Идентификатор страны
+              $ref: './api-core.yaml#/components/schemas/EntityId'
+            materialId:
+              description: Идентификатор материала
+              $ref: './api-core.yaml#/components/schemas/EntityId'
+            lock:
+              $ref: './api-core.yaml#/components/schemas/EntityLock'
+
+    LotUpdateRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotRequest'
+        - type: object
+          properties:
+            lot:
+              $ref: '#/components/schemas/LotUpdateObject'
+
+    LotUpdateResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotResponse'
+        - $ref: '#/components/schemas/OneLotResponse'
+
+    # удаление лота
+    LotDeleteObject:
+      type: object
+      properties:
+        id:
+          description: Идентификатор лота
+          $ref: './api-core.yaml#/components/schemas/EntityId'
+        lock:
+          description: Блокировка
+          $ref: './api-core.yaml#/components/schemas/EntityLock'
+
+    LotDeleteRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotRequest'
+        - type: object
+          properties:
+            lot:
+              $ref: '#/components/schemas/LotDeleteObject'
+
+    LotDeleteResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotResponse'
+        - $ref: '#/components/schemas/OneLotResponse'
+
+    # поиск лотов
+    LotSearchFilter:
+      description: Структура для поиска лотов
+      type: object
+      allOf:
+        - $ref: './api-core.yaml#/components/schemas/Entity'
+        - type: object
+          properties:
+            coin:
+              description: Банкнота (false) или монета (true)
+              type: boolean
+            year:
+              description: Год выпуска (0 - не учитывать)
+              $ref: '#/components/schemas/Year'
+            countryId:
+              description: Идентификатор страны-эмитента (0 - не учитывать)
+              $ref: './api-core.yaml#/components/schemas/EntityId'
+            materialId:
+              description: Идентификатор материала изготовления (0 - не учитывать)
+              $ref: './api-core.yaml#/components/schemas/EntityId'
+            denomination:
+              type: string
+              description: Номинал
+            condition:
+              description: Состояние лота
+              $ref: './api-core.yaml#/components/schemas/Condition'
+
+    LotSearchRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotRequest'
+        - type: object
+          properties:
+            filter:
+              $ref: '#/components/schemas/LotSearchFilter'
+
+    LotSearchResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotResponse'
+        - $ref: '#/components/schemas/ManyLotsResponse'
+
+    # инициализация и закрытие
+    LotWSInitCloseResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotResponse'

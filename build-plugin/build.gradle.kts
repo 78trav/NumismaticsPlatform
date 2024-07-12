@@ -12,6 +12,7 @@ gradlePlugin {
         register("build-kmp") {
             id = "build-kmp"
             implementationClass = "ru.numismatics.platform.plugin.BuildPluginMultiplatform"
+            version = "0.1"
         }
     }
 }
