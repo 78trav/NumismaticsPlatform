@@ -1,3 +1,5 @@
+# v1
+
 openapi: 3.0.3
 
 info:
@@ -243,11 +245,6 @@ components:
             country:
               description: Страна
               $ref: './api-references.yaml#/components/schemas/Country'
-#            marketPrice:
-#              description: Рыночная стоимость
-#              type: array
-#              items:
-#                $ref: './api-core.yaml#/components/schemas/MarketPrice'
             lock:
               description: Блокировка
               $ref: './api-core.yaml#/components/schemas/EntityLock'
@@ -284,9 +281,6 @@ components:
             materialId:
               description: Идентификатор материала
               $ref: './api-core.yaml#/components/schemas/EntityId'
-#            marketPrice:
-#              description: Рыночная стоимость
-#              $ref: './api-core.yaml#/components/schemas/MarketPrice'
 
     LotCreateRequest:
       type: object
