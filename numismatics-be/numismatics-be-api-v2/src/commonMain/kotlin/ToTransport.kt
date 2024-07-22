@@ -1,7 +1,7 @@
 package ru.numismatics.backend.api.v2
 
 import ru.numismatics.backend.api.v2.models.*
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.Command
 import ru.numismatics.backend.common.models.core.EntityType
 import ru.numismatics.backend.common.models.core.State
@@ -97,7 +97,7 @@ fun Lot.toTransport() = LotResponseV2(
     photos = photos.map { it.asString() }.takeIf { it.isNotEmpty() },
     ownerId = ownerId.takeIf { it.isNotEmpty() }?.asString(),
     country = takeIf { countryId.isNotEmpty() }?.let { Country(countryId.toLong()) },
-    permissions = permissions.toTransport { it.toTransport() },
+    permissions = getPermissions().toTransport { it.toTransport() },
     lock = lock.takeIf { it.isNotEmpty() }?.asString(),
     section = takeIf { sectionId.isNotEmpty() }?.let { Section(sectionId.toLong()) }
 )

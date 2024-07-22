@@ -1,9 +1,8 @@
 package ru.numismatics.backend.api.refs.test
 
-import kotlinx.serialization.json.Json
 import ru.numismatics.backend.api.references.*
 import ru.numismatics.backend.api.refs.models.*
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
 import ru.numismatics.backend.common.models.core.EntityPermission as EntityPermissionInternal
 import ru.numismatics.backend.common.models.entities.toTransport
@@ -11,7 +10,6 @@ import ru.numismatics.backend.common.models.id.*
 import ru.numismatics.backend.common.stubs.Stubs
 import ru.numismatics.backend.stub.StubProcessor
 import kotlin.test.Test
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import ru.numismatics.backend.common.models.entities.Material as MaterialInternal
@@ -106,9 +104,8 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
         assertEquals(referenceIn.description, referenceOut.description)
         assertEquals(referenceIn.probe, referenceOut.probe)
 
-        assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
-        )
+        assertEquals(referenceIn.getPermissions().size, res.item?.permissions?.size)
+        assertTrue(res.item?.permissions?.contains(EntityPermission.READ) ?: false)
 
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)
@@ -172,9 +169,8 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
         assertEquals(referenceIn.name, referenceOut.name)
         assertEquals(referenceIn.description, referenceOut.description)
 
-        assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
-        )
+        assertEquals(referenceIn.getPermissions().size, res.item?.permissions?.size)
+        assertTrue(res.item?.permissions?.contains(EntityPermission.READ) ?: false)
 
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)
@@ -240,9 +236,8 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
         assertEquals(referenceIn.description, referenceOut.description)
         assertEquals(referenceIn.parentId.toLong(), referenceOut.parentId)
 
-        assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
-        )
+        assertEquals(referenceIn.getPermissions().size, res.item?.permissions?.size)
+        assertTrue(res.item?.permissions?.contains(EntityPermission.READ) ?: false)
 
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)

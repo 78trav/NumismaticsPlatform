@@ -1,5 +1,3 @@
-# Справочники
-
 openapi: 3.0.3
 
 info:
@@ -138,6 +136,7 @@ components:
               description: Проба
               type: number
               format: float
+              minimum: 0
 
     Section:
       description: Раздел коллекции

@@ -10,7 +10,7 @@ import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import ru.numismatics.backend.api.v1.v1Mapper
-import ru.numismatics.backend.common.AppContext
+import ru.numismatics.backend.common.context.AppContext
 import ru.numismatics.backend.common.models.core.ApiVersion
 import ru.numismatics.platform.app.ktor.commonModule
 import ru.numismatics.platform.app.ktor.initAppContext

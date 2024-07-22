@@ -10,12 +10,22 @@ sealed class Entity {
     abstract val description: String
     abstract val lock: LockId
 
-    val permissions: Permissions = mutableSetOf()
+    private val permissions: Permissions = mutableSetOf()
 
-    abstract fun isEmpty() : Boolean
+    abstract fun isEmpty(): Boolean
+
+    abstract fun deepCopy(name: String, description: String, lock: LockId): Entity
+
+    fun setPermissions(newPermissions: Set<EntityPermission>) {
+        permissions.clear()
+        permissions.addAll(newPermissions)
+    }
+
+    fun getPermissions() = permissions.toSet()
+
 }
 
-fun <T> Permissions.toTransport(toTransport: (permission: EntityPermission) -> T) =
+fun <T> Set<EntityPermission>.toTransport(toTransport: (permission: EntityPermission) -> T) =
     this
         .map { toTransport.invoke(it) }
         .toSet()

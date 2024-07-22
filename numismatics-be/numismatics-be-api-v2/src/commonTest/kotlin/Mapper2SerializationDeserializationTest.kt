@@ -60,7 +60,7 @@ class Mapper2SerializationDeserializationTest : TestValues() {
             command = Command.CREATE,
             entityResponse = mutableListOf(
                 lotInt.copy().apply {
-                    permissions.add(EntityPermission.READ)
+                    setPermissions(setOf(EntityPermission.READ))
                 }
             )
         ).toTransport() as LotCreateResponse

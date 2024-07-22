@@ -3,7 +3,7 @@ package ru.numismatics.backend.api.v1.test
 import ru.numismatics.backend.api.v1.models.Debug
 import ru.numismatics.backend.api.v1.models.RequestDebugMode
 import ru.numismatics.backend.api.v1.models.RequestDebugStubs
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
 import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.backend.common.models.id.*
@@ -44,9 +44,7 @@ abstract class TestValues {
             materialId = MaterialId(3U),
             lock = LockId("5698409")
         ).apply {
-            permissions.add(EntityPermission.READ)
-            permissions.add(EntityPermission.UPDATE)
-            permissions.add(EntityPermission.DELETE)
+            setPermissions(setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE))
         }
 
         val filledContext = NumismaticsPlatformContext(

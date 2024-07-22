@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.jackson.datatype)
     implementation(project(":numismatics-be-common"))
     testImplementation(kotlin("test"))
+    implementation(libs.valid)
 }
 
 tasks {

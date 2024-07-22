@@ -1,8 +1,9 @@
 package ru.numismatics.backend.common
 
 import kotlinx.datetime.Clock
-import ru.numismatics.backend.common.NumismaticsPlatformContext
-import ru.numismatics.backend.common.helpers.asError
+import ru.numismatics.backend.common.context.AppContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
+import ru.numismatics.backend.common.helpers.toError
 import ru.numismatics.backend.common.models.core.Command
 import ru.numismatics.backend.common.models.core.State
 import kotlin.reflect.KClass
@@ -43,7 +44,7 @@ suspend inline fun AppContext.controllerHelper(
 //        )
 //        println(6)
         context.state = State.FAILING
-        context.errors.add(e.asError())
+        context.errors.add(e.toError())
         processor.exec(context)
         if (context.command == Command.NONE) {
             context.command = Command.READ

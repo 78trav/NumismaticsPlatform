@@ -1,19 +1,26 @@
 package ru.numismatics.backend.api.v2
 
 import ru.numismatics.backend.api.v2.models.*
-import ru.numismatics.backend.common.NumismaticsPlatformContext
-import ru.numismatics.backend.common.mappers.conditionToInternal
-import ru.numismatics.backend.common.mappers.modeToInternal
-import ru.numismatics.backend.common.mappers.stubCaseToInternal
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
+import ru.numismatics.backend.common.mappers.*
 import ru.numismatics.backend.common.models.core.*
+import ru.numismatics.backend.common.models.core.Condition
 import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.backend.common.models.id.*
 import ru.numismatics.backend.common.quantity
+import ru.numismatics.backend.common.stubs.Stubs
 import ru.numismatics.backend.common.year
+import ru.numismatics.platform.libs.validation.getOrExec
 
 fun NumismaticsPlatformContext.fromTransport(request: ILotRequest) {
-    requestType = modeToInternal(request.debug?.mode?.value)
-    stubCase = stubCaseToInternal(request.debug?.stub?.value)
+    requestType = request.debug?.mode?.value.toMode().getOrExec(RequestType.TEST) { er ->
+        errors.addAll(er.errors)
+        state = State.FAILING
+    }
+    stubCase = request.debug?.stub?.value.toStubCase().getOrExec(Stubs.NONE) { er ->
+        errors.addAll(er.errors)
+        state = State.FAILING
+    }
 
     entityType = EntityType.LOT
 
@@ -64,7 +71,7 @@ fun LotCreateObjectV2?.toInternal() =
                 denomination = denomination ?: "",
                 materialId = materialId.toMaterialId(),
                 weight = weight ?: 0f,
-                condition = conditionToInternal(condition?.value),
+                condition = condition?.value.toCondition().getOrExec(Condition.UNDEFINED),
                 serialNumber = serialNumber ?: "",
                 quantity = quantity(quantity),
                 photos = photos.toBase64StringList(),
@@ -88,7 +95,7 @@ fun LotUpdateObjectV2?.toInternal() =
                 denomination = denomination ?: "",
                 materialId = materialId.toMaterialId(),
                 weight = weight ?: 0f,
-                condition = conditionToInternal(condition?.value),
+                condition = condition?.value.toCondition().getOrExec(Condition.UNDEFINED),
                 serialNumber = serialNumber ?: "",
                 quantity = quantity(quantity),
                 photos = photos.toBase64StringList(),
@@ -117,7 +124,7 @@ fun LotSearchFilterV2?.toInternal() =
                 countryId = countryId.toCountryId(),
                 denomination = denomination ?: "",
                 materialId = materialId.toMaterialId(),
-                condition = conditionToInternal(condition?.value),
+                condition = condition?.value.toCondition().getOrExec(Condition.UNDEFINED),
                 sectionId = sectionId.toSectionId()
             )
         }

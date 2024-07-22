@@ -39,6 +39,9 @@ kotlin {
             executable {
                 entryPoint = "ru.numismatics.platform.app.ktor.main"
             }
+            all {
+                freeCompilerArgs += "-Xdisable-phases=EscapeAnalysis"
+            }
         }
     }
 
@@ -71,7 +74,7 @@ kotlin {
                 implementation(project(":numismatics-be-api-v2-mapper"))
 
 //                // Stubs
-                implementation(project(":numismatics-be-stubs"))
+//                implementation(project(":numismatics-be-stubs"))
 //                // RabbitMQ
 ////                implementation(project(":ok-marketplace-app-rabbit"))
 
@@ -96,6 +99,7 @@ kotlin {
                 implementation(libs.ktor.server.test)
                 implementation(libs.ktor.client.negotiation)
 
+                implementation(project(":numismatics-be-stubs"))
 //                implementation(project(":numismatics-be-api-v2-mapper"))
             }
         }

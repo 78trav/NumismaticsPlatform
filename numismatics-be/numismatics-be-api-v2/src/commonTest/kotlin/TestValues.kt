@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDate
 import ru.numismatics.backend.api.v2.models.Debug
 import ru.numismatics.backend.api.v2.models.RequestDebugMode
 import ru.numismatics.backend.api.v2.models.RequestDebugStubs
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
 import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.backend.common.models.entities.MarketPrice
@@ -51,9 +51,7 @@ abstract class TestValues {
             ),
             lock = LockId("5698409")
         ).apply {
-            permissions.add(EntityPermission.READ)
-            permissions.add(EntityPermission.UPDATE)
-            permissions.add(EntityPermission.DELETE)
+            setPermissions(setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE))
         }
 
         val filledContext = NumismaticsPlatformContext(
