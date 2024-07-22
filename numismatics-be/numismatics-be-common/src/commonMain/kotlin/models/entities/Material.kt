@@ -16,6 +16,14 @@ data class Material(
 
     override fun isEmpty() = (this == EMPTY)
 
+    override fun deepCopy(name: String, description: String, lock: LockId): Entity = copy(
+        name = name,
+        description = description,
+        lock = lock
+    ).apply {
+        this.setPermissions(this@Material.getPermissions())
+    }
+
     companion object {
         val EMPTY = Material(MaterialId.EMPTY)
     }

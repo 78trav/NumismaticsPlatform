@@ -3,13 +3,14 @@ package ru.numismatics.backend.api.v1.test
 import ru.numismatics.backend.api.v1.fromTransport
 import ru.numismatics.backend.api.v1.models.*
 import ru.numismatics.backend.api.v1.toTransport
-import ru.numismatics.backend.common.NumismaticsPlatformContext
-import ru.numismatics.backend.common.mappers.stubCaseToInternal
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
+import ru.numismatics.backend.common.mappers.toStubCase
 import ru.numismatics.backend.common.models.core.*
 import ru.numismatics.backend.common.models.core.EntityPermission as EntityPermissionInternal
 import ru.numismatics.backend.common.stubs.Stubs
 import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.backend.common.models.id.*
+import ru.numismatics.platform.libs.validation.getOrExec
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -20,7 +21,7 @@ class MapperLotTest : TestValues() {
     @Test
     fun `stubCase to internal`() {
         // when
-        val stubCase = stubCaseToInternal(debug.stub?.value)
+        val stubCase = debug.stub?.value.toStubCase().getOrExec(Stubs.SUCCESS)
 
         // then
         assertEquals(Stubs.SUCCESS, stubCase)
@@ -123,7 +124,7 @@ class MapperLotTest : TestValues() {
 
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
 
-        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
+        assertEquals(lotInt.getPermissions().size, lotExt.permissions?.size)
         assertTrue(
             lotExt.permissions?.containsAll(
                 setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
@@ -236,7 +237,7 @@ class MapperLotTest : TestValues() {
 
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
 
-        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
+        assertEquals(lotInt.getPermissions().size, lotExt.permissions?.size)
         assertTrue(
             lotExt.permissions?.containsAll(
                 setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
@@ -299,7 +300,7 @@ class MapperLotTest : TestValues() {
         assertEquals(MaterialId.EMPTY, lotInt.materialId)
 
         assertEquals(0, lotInt.marketPrice.size)
-        assertEquals(0, lotInt.permissions.size)
+        assertEquals(0, lotInt.getPermissions().size)
     }
 
     @Test
@@ -335,7 +336,7 @@ class MapperLotTest : TestValues() {
 
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
 
-        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
+        assertEquals(lotInt.getPermissions().size, lotExt.permissions?.size)
         assertTrue(
             lotExt.permissions?.containsAll(
                 setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
@@ -398,7 +399,7 @@ class MapperLotTest : TestValues() {
         assertEquals(MaterialId.EMPTY, lotInt.materialId)
 
         assertEquals(0, lotInt.marketPrice.size)
-        assertEquals(0, lotInt.permissions.size)
+        assertEquals(0, lotInt.getPermissions().size)
     }
 
     @Test
@@ -434,7 +435,7 @@ class MapperLotTest : TestValues() {
 
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
 
-        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
+        assertEquals(lotInt.getPermissions().size, lotExt.permissions?.size)
         assertTrue(
             lotExt.permissions?.containsAll(
                 setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
@@ -499,7 +500,7 @@ class MapperLotTest : TestValues() {
         assertEquals(lotExt.countryId, lotInt.countryId.toLong())
         assertEquals(lotExt.materialId, lotInt.materialId.toLong())
 
-        assertEquals(0, lotInt.permissions.size)
+        assertEquals(0, lotInt.getPermissions().size)
         assertEquals(0, lotInt.photos.size)
     }
 
@@ -513,7 +514,7 @@ class MapperLotTest : TestValues() {
             command = Command.SEARCH,
             entityResponse = mutableListOf(
                 lotInt.copy(condition = ConditionInternal.UNC).apply {
-                    permissions.add(EntityPermissionInternal.READ)
+                    setPermissions(setOf(EntityPermissionInternal.READ))
                 }
             )
         ).toTransport()

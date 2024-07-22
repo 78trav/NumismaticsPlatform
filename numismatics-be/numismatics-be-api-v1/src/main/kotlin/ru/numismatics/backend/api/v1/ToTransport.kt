@@ -1,7 +1,7 @@
 package ru.numismatics.backend.api.v1
 
 import ru.numismatics.backend.api.v1.models.*
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.Command
 import ru.numismatics.backend.common.models.core.EntityType
 import ru.numismatics.backend.common.models.core.State
@@ -37,18 +37,21 @@ fun NumismaticsPlatformContext.lotCreateToTransport() = LotCreateResponse(
 )
 
 fun NumismaticsPlatformContext.lotReadToTransport() = LotReadResponse(
+    responseType = "read",
     result = state.toResult(),
     errors = errors.toTransport(),
     lot = entityResponse.lotToTransport()
 )
 
 fun NumismaticsPlatformContext.lotUpdateToTransport() = LotUpdateResponse(
+    responseType = "update",
     result = state.toResult(),
     errors = errors.toTransport(),
     lot = entityResponse.lotToTransport()
 )
 
 fun NumismaticsPlatformContext.lotDeleteToTransport() = LotDeleteResponse(
+    responseType = "delete",
     result = state.toResult(),
     errors = errors.toTransport(),
     lot = entityResponse.lotToTransport()
@@ -60,6 +63,7 @@ fun NumismaticsPlatformContext.lotWsInitCloseToTransport() = LotWSInitCloseRespo
 )
 
 fun NumismaticsPlatformContext.lotsToTransport() = LotSearchResponse(
+    responseType = "search",
     result = state.toResult(),
     errors = errors.toTransport(),
     lots = entityResponse
@@ -98,7 +102,7 @@ fun Lot.toTransport() = LotResponse(
     photos = photos.map { it.asString() }.takeIf { it.isNotEmpty() },
     ownerId = ownerId.takeIf { it.isNotEmpty() }?.asString(),
     country = takeIf { countryId.isNotEmpty() }?.let { Country(countryId.toLong()) },
-    permissions = permissions.toTransport { it.toTransport() },
+    permissions = getPermissions().toTransport { it.toTransport() },
     lock = lock.takeIf { it.isNotEmpty() }?.asString()
 )
 

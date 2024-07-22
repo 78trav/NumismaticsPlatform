@@ -1,7 +1,7 @@
 package ru.numismatics.backend.api.references
 
 import ru.numismatics.backend.api.refs.models.*
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.Command
 import ru.numismatics.backend.common.models.core.EntityType
 import ru.numismatics.backend.common.models.core.Errors
@@ -205,7 +205,7 @@ private fun MaterialInternal.toTransport() = ItemResponse(
         description = description.takeIf { it.isNotBlank() },
         probe = probe.takeIf { it > 0 }
     ),
-    permissions = permissions.toTransport { it.toTransport() }
+    permissions = getPermissions().toTransport { it.toTransport() }
 )
 
 private fun CountryInternal.toTransport() = ItemResponse(
@@ -214,7 +214,7 @@ private fun CountryInternal.toTransport() = ItemResponse(
         name = name.takeIf { it.isNotBlank() },
         description = description.takeIf { it.isNotBlank() }
     ),
-    permissions = permissions.toTransport { it.toTransport() }
+    permissions = getPermissions().toTransport { it.toTransport() }
 )
 
 private fun SectionInternal.toTransport() = ItemResponse(
@@ -224,7 +224,7 @@ private fun SectionInternal.toTransport() = ItemResponse(
         description = description.takeIf { it.isNotBlank() },
         parentId = parentId.takeIf { it.isNotEmpty() }?.toLong(),
     ),
-    permissions = permissions.toTransport { it.toTransport() }
+    permissions = getPermissions().toTransport { it.toTransport() }
 )
 
 fun PermissionInternal.toTransport() = when (this) {

@@ -7,7 +7,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
-import ru.numismatics.backend.common.AppContext
+import ru.numismatics.backend.common.context.AppContext
 import kotlin.reflect.KClass
 import ru.numismatics.backend.api.references.fromTransport
 import ru.numismatics.backend.api.references.toTransport

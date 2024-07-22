@@ -8,7 +8,7 @@ import io.ktor.server.websocket.*
 import ru.numismatics.backend.api.v1.fromTransport
 import ru.numismatics.backend.api.v1.models.*
 import ru.numismatics.backend.api.v1.toTransport
-import ru.numismatics.backend.common.AppContext
+import ru.numismatics.backend.common.context.AppContext
 import ru.numismatics.backend.common.controllerHelper
 import ru.numismatics.backend.api.v1.v1Mapper
 import ru.numismatics.backend.api.v1.v1ResponseSerialize

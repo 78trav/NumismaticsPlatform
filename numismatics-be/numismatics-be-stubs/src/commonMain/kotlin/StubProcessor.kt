@@ -1,76 +1,79 @@
 package ru.numismatics.backend.stub
 
 import kotlinx.datetime.LocalDate
-import ru.numismatics.backend.common.IProcessor
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.CorSettings
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.Processor
 import ru.numismatics.backend.common.models.core.*
 import ru.numismatics.backend.common.models.entities.*
 import ru.numismatics.backend.common.models.id.*
 
-class StubProcessor : IProcessor {
+class StubProcessor(corSettings: CorSettings) : Processor<NumismaticsPlatformContext>(corSettings) {
 
-    override suspend fun exec(context: NumismaticsPlatformContext) {
+    override suspend fun exec(context: NumismaticsPlatformContext) {}
 
-        context.state = State.RUNNING
-        if (context.command !in setOf(Command.WS_INIT, Command.WS_CLOSE))
-            when (context.entityType) {
-
-                EntityType.COUNTRY -> stubCommand(context, countries)
-                EntityType.MATERIAL -> stubCommand(context, materials)
-                EntityType.SECTION -> stubCommand(context, sections)
-                EntityType.MARKET_PRICE -> stubCommand(context, lots, setOf(Command.CREATE, Command.DELETE))
-                EntityType.LOT -> stubCommand(
-                    context,
-                    lots,
-                    setOf(Command.CREATE, Command.UPDATE, Command.DELETE, Command.SEARCH)
-                )
-
-                else -> {
-                    context.state = State.FAILING
-                    context.errors.add(Error(message = "Неизвестая сущность"))
-                }
-            }
-
-    }
-
-    private fun stubCommand(
-        context: NumismaticsPlatformContext,
-        source: List<Entity>,
-        commands: Set<Command> = setOf(Command.CREATE, Command.UPDATE, Command.DELETE)
-    ) {
-
-        when (context.command) {
-
-            in commands -> context.entityResponse.add(source.first())
-            Command.READ -> if (context.entityRequest.isEmpty()) context.entityResponse.addAll(source) else context.entityResponse.add(
-                source.first()
-            )
-
-            else -> {
-                context.state = State.FAILING
-                context.errors.add(Error(message = "Операция ${context.command} для сущности '${context.entityType.description()}' не поддерживается"))
-            }
-        }
-    }
+//        context.state = State.RUNNING
+//        if (context.command !in setOf(Command.WS_INIT, Command.WS_CLOSE))
+//            when (context.entityType) {
+//
+//                EntityType.COUNTRY -> stubCommand(context, countries)
+//                EntityType.MATERIAL -> stubCommand(context, materials)
+//                EntityType.SECTION -> stubCommand(context, sections)
+//                EntityType.MARKET_PRICE -> stubCommand(context, lots, setOf(Command.CREATE, Command.DELETE))
+//                EntityType.LOT -> stubCommand(
+//                    context,
+//                    lots,
+//                    setOf(Command.CREATE, Command.UPDATE, Command.DELETE, Command.SEARCH)
+//                )
+//
+//                else -> {
+//                    context.state = State.FAILING
+//                    context.errors.add(Error(message = "Неизвестая сущность"))
+//                }
+//            }
+//
+//    }
+//
+//    private fun stubCommand(
+//        context: NumismaticsPlatformContext,
+//        source: List<Entity>,
+//        commands: Set<Command> = setOf(Command.CREATE, Command.UPDATE, Command.DELETE)
+//    ) {
+//
+//        when (context.command) {
+//
+//            in commands -> context.entityResponse.add(source.first())
+//            Command.READ -> if (context.entityRequest.isEmpty()) context.entityResponse.addAll(source) else context.entityResponse.add(
+//                source.first()
+//            )
+//
+//            else -> {
+//                context.state = State.FAILING
+//                context.errors.add(Error(message = "Операция ${context.command} для сущности '${context.entityType.description()}' не поддерживается"))
+//            }
+//        }
+//    }
 
 
     companion object {
 
+        private val lock = "test-lock".toLockId()
+
         val countries = listOf(
-            Country(CountryId(1U), "СССР", "Союз Советских Социалистических Республик").apply {
-                permissions.add(EntityPermission.READ)
+            Country(CountryId(1U), "СССР", "Союз Советских Социалистических Республик", lock).apply {
+                setPermissions(setOf(EntityPermission.READ))
             },
             Country(CountryId(2U), "Россия", "Российская Федерация").apply {
-                permissions.add(EntityPermission.READ)
+                setPermissions(setOf(EntityPermission.READ))
             }
         )
 
         val materials = listOf(
-            Material(id = MaterialId(1U), name = "Серебро 925", description = "Серебро 925 пробы", probe = 925f).apply {
-                permissions.add(EntityPermission.READ)
+            Material(id = MaterialId(1U), name = "Серебро 925", description = "Серебро 925 пробы", probe = 925f, lock = lock).apply {
+                setPermissions(setOf(EntityPermission.READ))
             },
             Material(id = MaterialId(2U), name = "Золото 999", description = "Золото 999 пробы", probe = 999f).apply {
-                permissions.add(EntityPermission.READ)
+                setPermissions(setOf(EntityPermission.READ))
             }
         )
 
@@ -79,16 +82,25 @@ class StubProcessor : IProcessor {
                 SectionId(1U),
                 "Мультики",
                 "Российская (советская) мультипликация",
-                parentId = SectionId(10U)
+                parentId = SectionId(10U),
+                lock = lock
             ).apply {
-                permissions.add(EntityPermission.READ)
+                setPermissions(setOf(EntityPermission.READ))
             },
             Section(SectionId(2U), "Сказки", "Легенды и сказки народов России").apply {
-                permissions.add(EntityPermission.READ)
+                setPermissions(setOf(EntityPermission.READ))
             },
             Section(SectionId(3U), "Города").apply {
-                permissions.add(EntityPermission.READ)
+                setPermissions(setOf(EntityPermission.READ))
             }
+        )
+
+        val entitiesCommands = mapOf(
+            EntityType.COUNTRY to setOf(Command.CREATE, Command.READ, Command.UPDATE, Command.DELETE),
+            EntityType.MATERIAL to setOf(Command.CREATE, Command.READ, Command.UPDATE, Command.DELETE),
+            EntityType.SECTION to setOf(Command.CREATE, Command.READ, Command.UPDATE, Command.DELETE),
+            EntityType.LOT to setOf(Command.CREATE, Command.READ, Command.UPDATE, Command.DELETE, Command.SEARCH),
+            EntityType.MARKET_PRICE to setOf(Command.CREATE, Command.READ, Command.DELETE)
         )
 
         const val PHOTO_1 = "фото1"
@@ -114,9 +126,9 @@ class StubProcessor : IProcessor {
                 ),
                 sectionId = SectionId(3u),
                 photos = mutableListOf(Base64String(PHOTO_1), Base64String(PHOTO_2)),
-                lock = "test-lock".toLockId()
+                lock = lock
             ).apply {
-                permissions.add(EntityPermission.READ)
+                setPermissions(setOf(EntityPermission.READ))
             },
             Lot(
                 id = LotId(2U),
@@ -137,7 +149,7 @@ class StubProcessor : IProcessor {
                 ),
                 sectionId = SectionId(1u)
             ).apply {
-                permissions.add(EntityPermission.READ)
+                setPermissions(setOf(EntityPermission.READ))
             }
         )
 

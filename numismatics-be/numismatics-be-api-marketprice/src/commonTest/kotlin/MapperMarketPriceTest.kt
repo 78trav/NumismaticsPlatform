@@ -1,13 +1,11 @@
 package ru.numismatics.backend.api.marketprice.test
 
-import kotlinx.datetime.LocalDate
 import ru.numismatics.backend.api.marketprice.fromTransport
 import ru.numismatics.backend.api.marketprice.models.*
 import ru.numismatics.backend.api.marketprice.toTransport
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
 import ru.numismatics.backend.common.models.core.Condition
-import ru.numismatics.backend.common.models.core.Error
 import ru.numismatics.backend.common.stubs.Stubs
 import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.backend.common.models.entities.asString
@@ -16,7 +14,6 @@ import ru.numismatics.backend.common.models.id.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import ru.numismatics.backend.common.models.entities.MarketPrice as MarketPriceInternal
 
 class MapperMarketPriceTest: TestValues() {
 
@@ -71,7 +68,7 @@ class MapperMarketPriceTest: TestValues() {
 
         assertEquals(mp.marketPrice?.date.toLocalDateNP(), lotInt.marketPrice[0].date)
         assertEquals(mp.marketPrice?.amount, lotInt.marketPrice[0].amount)
-        assertEquals(0, lotInt.permissions.size)
+        assertEquals(0, lotInt.getPermissions().size)
     }
 
     @Test
@@ -145,7 +142,7 @@ class MapperMarketPriceTest: TestValues() {
         assertEquals(MaterialId.EMPTY, lotInt.materialId)
 
         assertEquals(0, lotInt.marketPrice.size)
-        assertEquals(0, lotInt.permissions.size)
+        assertEquals(0, lotInt.getPermissions().size)
     }
 
     @Test
@@ -199,6 +196,6 @@ class MapperMarketPriceTest: TestValues() {
 
         assertEquals(mp.date.toLocalDateNP(), lotInt.marketPrice[0].date)
         assertEquals(0f, lotInt.marketPrice[0].amount)
-        assertEquals(0, lotInt.permissions.size)
+        assertEquals(0, lotInt.getPermissions().size)
     }
 }

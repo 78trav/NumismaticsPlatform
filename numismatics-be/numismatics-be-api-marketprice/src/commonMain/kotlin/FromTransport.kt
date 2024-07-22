@@ -1,20 +1,30 @@
 package ru.numismatics.backend.api.marketprice
 
 import ru.numismatics.backend.api.marketprice.models.*
-import ru.numismatics.backend.common.NumismaticsPlatformContext
-import ru.numismatics.backend.common.mappers.modeToInternal
-import ru.numismatics.backend.common.mappers.stubCaseToInternal
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
+import ru.numismatics.backend.common.mappers.toMode
+import ru.numismatics.backend.common.mappers.toStubCase
 import ru.numismatics.backend.common.models.core.Command
 import ru.numismatics.backend.common.models.core.EntityType
+import ru.numismatics.backend.common.models.core.RequestType
+import ru.numismatics.backend.common.models.core.State
 import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.backend.common.models.entities.toLocalDateNP
 import ru.numismatics.backend.common.models.id.toLotId
-import kotlin.math.max
+import ru.numismatics.backend.common.stubs.Stubs
+import ru.numismatics.platform.libs.validation.getOrExec
 import ru.numismatics.backend.common.models.entities.MarketPrice as MarketPriceInternal
 
 fun NumismaticsPlatformContext.fromTransport(request: IMarketPriceRequest) {
-    requestType = modeToInternal(request.debug?.mode?.value)
-    stubCase = stubCaseToInternal(request.debug?.stub?.value)
+
+    requestType = request.debug?.mode?.value.toMode().getOrExec(RequestType.TEST) { er ->
+        errors.addAll(er.errors)
+        state = State.FAILING
+    }
+    stubCase = request.debug?.stub?.value.toStubCase().getOrExec(Stubs.NONE) { er ->
+        errors.addAll(er.errors)
+        state = State.FAILING
+    }
     entityType = EntityType.MARKET_PRICE
 
     when (request) {
@@ -62,5 +72,5 @@ fun MarketPriceReadObject?.toInternal() = if (this == null) Lot.EMPTY else Lot(i
 
 private fun MarketPrice?.toInternal(): MarketPriceInternal? =
     this?.date.toLocalDateNP()?.let { date ->
-        MarketPriceInternal(date, max(this?.amount ?: 0f, 0f))
+        MarketPriceInternal(date, (this?.amount ?: 0).toFloat())
     }

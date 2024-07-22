@@ -14,7 +14,7 @@ import ru.numismatics.backend.api.v2.models.*
 import ru.numismatics.backend.api.v2.toTransport
 import ru.numismatics.backend.api.v2.v2ResponseSerialize
 import ru.numismatics.backend.common.controllerHelper
-import ru.numismatics.backend.common.AppContext
+import ru.numismatics.backend.common.context.AppContext
 import ru.numismatics.platform.app.ktor.ws.wsHandler
 import kotlin.reflect.KClass
 

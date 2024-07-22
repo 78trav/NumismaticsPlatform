@@ -4,7 +4,7 @@ import ru.numismatics.backend.api.v2.fromTransport
 import ru.numismatics.backend.api.v2.models.*
 import ru.numismatics.backend.api.v2.models.Condition
 import ru.numismatics.backend.api.v2.toTransport
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
 import ru.numismatics.backend.common.models.core.EntityPermission as EntityPermissionInternal
 import ru.numismatics.backend.common.models.entities.Lot
@@ -116,7 +116,7 @@ class MapperLotTestV2: TestValues() {
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
         assertEquals(lotInt.sectionId.toLong(), lotExt.section?.id)
 
-        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
+        assertEquals(lotInt.getPermissions().size, lotExt.permissions?.size)
         assertTrue(
             lotExt.permissions?.containsAll(
                 setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
@@ -231,7 +231,7 @@ class MapperLotTestV2: TestValues() {
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
         assertEquals(lotInt.sectionId.toLong(), lotExt.section?.id)
 
-        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
+        assertEquals(lotInt.getPermissions().size, lotExt.permissions?.size)
         assertTrue(
             lotExt.permissions?.containsAll(
                 setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
@@ -294,7 +294,7 @@ class MapperLotTestV2: TestValues() {
         assertTrue(lotInt.materialId.isEmpty())
 
         assertTrue(lotInt.marketPrice.isEmpty())
-        assertEquals(0, lotInt.permissions.size)
+        assertEquals(0, lotInt.getPermissions().size)
     }
 
     @Test
@@ -331,7 +331,7 @@ class MapperLotTestV2: TestValues() {
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
         assertEquals(lotInt.sectionId.toLong(), lotExt.section?.id)
 
-        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
+        assertEquals(lotInt.getPermissions().size, lotExt.permissions?.size)
         assertTrue(
             lotExt.permissions?.containsAll(
                 setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
@@ -394,7 +394,7 @@ class MapperLotTestV2: TestValues() {
         assertTrue(lotInt.materialId.isEmpty())
 
         assertTrue(lotInt.marketPrice.isEmpty())
-        assertEquals(0, lotInt.permissions.size)
+        assertEquals(0, lotInt.getPermissions().size)
     }
 
     @Test
@@ -431,7 +431,7 @@ class MapperLotTestV2: TestValues() {
         assertEquals(lotInt.countryId.toLong(), lotExt.country?.id)
         assertEquals(lotInt.sectionId.toLong(), lotExt.section?.id)
 
-        assertEquals(lotInt.permissions.size, lotExt.permissions?.size)
+        assertEquals(lotInt.getPermissions().size, lotExt.permissions?.size)
         assertTrue(
             lotExt.permissions?.containsAll(
                 setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE)
@@ -497,7 +497,7 @@ class MapperLotTestV2: TestValues() {
         assertEquals(lotExt.materialId, lotInt.materialId.toLong())
         assertEquals(lotExt.sectionId, lotInt.sectionId.toLong())
 
-        assertEquals(0, lotInt.permissions.size)
+        assertEquals(0, lotInt.getPermissions().size)
         assertEquals(0, lotInt.photos.size)
         assertTrue(lotInt.marketPrice.isEmpty())
     }
@@ -512,7 +512,7 @@ class MapperLotTestV2: TestValues() {
             command = Command.SEARCH,
             entityResponse = mutableListOf(
                 lotInt.copy(condition = ConditionInternal.UNC).apply {
-                    permissions.add(EntityPermissionInternal.READ)
+                    setPermissions(setOf(EntityPermissionInternal.READ))
                 }
             )
         ).toTransport()

@@ -2,7 +2,8 @@ package ru.numismatics.backend.api.refs.test
 
 import ru.numismatics.backend.api.references.*
 import ru.numismatics.backend.api.refs.models.*
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.api.refs.models.EntityPermission
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
 import ru.numismatics.backend.common.models.entities.toTransport
 import ru.numismatics.backend.common.models.id.*
@@ -74,9 +75,8 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
         assertEquals(referenceIn.description, referenceOut.description)
         assertEquals(referenceIn.probe, referenceOut.probe)
 
-        assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
-        )
+        assertEquals(referenceIn.getPermissions().size, res.item?.permissions?.size)
+        assertTrue(res.item?.permissions?.contains(EntityPermission.READ) ?: false)
 
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)
@@ -140,9 +140,8 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
         assertEquals(referenceIn.name, referenceOut.name)
         assertEquals(referenceIn.description, referenceOut.description)
 
-        assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
-        )
+        assertEquals(referenceIn.getPermissions().size, res.item?.permissions?.size)
+        assertTrue(res.item?.permissions?.contains(EntityPermission.READ) ?: false)
 
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)
@@ -208,9 +207,8 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
         assertEquals(referenceIn.description, referenceOut.description)
         assertEquals(referenceIn.parentId.toLong(), referenceOut.parentId)
 
-        assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
-        )
+        assertEquals(referenceIn.getPermissions().size, res.item?.permissions?.size)
+        assertTrue(res.item?.permissions?.contains(EntityPermission.READ) ?: false)
 
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)

@@ -35,7 +35,7 @@ components:
         id:
           $ref: '#/components/schemas/EntityId'
         name:
-          description: Краткое название
+          description: Краткое наименование
           type: string
         description:
           description: Описание
@@ -96,6 +96,7 @@ components:
           description: Сумма в рублях
           type: number
           format: float
+          minimum: 0
 
     Base64String:
       description: Строка в base64

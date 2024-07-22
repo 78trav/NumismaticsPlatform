@@ -11,6 +11,9 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
 
                 implementation(project(":numismatics-be-common"))
+                implementation(project(":numismatics-be-stubs"))
+
+                implementation(libs.cor)
 //                implementation(project(":ok-marketplace-stubs"))
             }
         }
@@ -18,6 +21,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
+
+                implementation(libs.kotlinx.coroutines.test)
 
 //                api(libs.coroutines.test)
             }

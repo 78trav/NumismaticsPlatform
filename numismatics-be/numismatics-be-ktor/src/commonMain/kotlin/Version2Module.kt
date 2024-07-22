@@ -6,7 +6,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import ru.numismatics.backend.api.v2.mapper.v2Mapper
-import ru.numismatics.backend.common.AppContext
+import ru.numismatics.backend.common.context.AppContext
 import ru.numismatics.backend.common.models.core.ApiVersion
 import ru.numismatics.platform.app.ktor.v2.lot
 import ru.numismatics.platform.app.ktor.v2.marketPrice
