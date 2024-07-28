@@ -156,5 +156,4 @@ class V2StubLotTest() : TestApplicationV2("v2") {
         assertTrue(refExt.photos?.containsAll(setOf(StubProcessor.PHOTO_1, StubProcessor.PHOTO_2)) ?: false)
         assertEquals(refInt.lock.asString(), refExt.lock)
     }
-
 }

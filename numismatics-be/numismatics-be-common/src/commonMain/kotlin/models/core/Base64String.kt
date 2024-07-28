@@ -11,7 +11,6 @@ value class Base64String(private val value: String) {
     }
 }
 
-
 fun Base64String.isEmpty(): Boolean = (this == Base64String.EMPTY)
 
 fun Base64String.isNotEmpty(): Boolean = !isEmpty()

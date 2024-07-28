@@ -147,3 +147,4 @@ private fun State.toResult(): ResponseResult? = when (this) {
     State.FINISHING -> ResponseResult.SUCCESS
     else -> null
 }
+

@@ -555,5 +555,4 @@ class MapperLotTest : TestValues() {
         assertEquals(error.field, res.errors?.firstOrNull()?.field)
         assertEquals(error.message, res.errors?.firstOrNull()?.message)
     }
-
 }

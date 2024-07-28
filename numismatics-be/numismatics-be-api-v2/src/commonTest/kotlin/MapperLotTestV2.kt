@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import ru.numismatics.backend.common.models.core.Condition as ConditionInternal
 
-class MapperLotTestV2: TestValues() {
+class MapperLotTestV2 : TestValues() {
 
     @Test
     fun `lot CREATE request from transport`() {
@@ -555,5 +555,4 @@ class MapperLotTestV2: TestValues() {
         assertEquals(error.field, res.errors?.firstOrNull()?.field)
         assertEquals(error.message, res.errors?.firstOrNull()?.message)
     }
-
 }

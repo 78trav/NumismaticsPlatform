@@ -15,7 +15,7 @@ import ru.numismatics.backend.common.models.entities.Material as MaterialInterna
 import ru.numismatics.backend.common.models.entities.Country as CountryInternal
 import ru.numismatics.backend.common.models.entities.Section as SectionInternal
 
-class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
+class MapperReferenceDeleteTest : ReferenceTest(Command.DELETE) {
 
     @Test
     fun `material from transport`() {
@@ -218,5 +218,4 @@ class MapperReferenceDeleteTest: ReferenceTest(Command.DELETE) {
         assertEquals(error.field, res.errors?.firstOrNull()?.field)
         assertEquals(error.message, res.errors?.firstOrNull()?.message)
     }
-
 }

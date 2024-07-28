@@ -68,5 +68,4 @@ abstract class TestApplicationV2(val endPoint: String) {
             }
         }
     }
-
 }

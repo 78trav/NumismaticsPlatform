@@ -18,7 +18,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import ru.numismatics.backend.common.models.entities.MarketPrice as MarketPriceInternal
 
-class MapperMarketPriceTest: TestValues() {
+class MapperMarketPriceTest : TestValues() {
 
     @Test
     fun `market price CREATE request from transport`() {
@@ -202,3 +202,4 @@ class MapperMarketPriceTest: TestValues() {
         assertEquals(0, lotInt.permissions.size)
     }
 }
+

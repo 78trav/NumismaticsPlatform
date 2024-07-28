@@ -12,7 +12,7 @@ sealed class Entity {
 
     val permissions: Permissions = mutableSetOf()
 
-    abstract fun isEmpty() : Boolean
+    abstract fun isEmpty(): Boolean
 }
 
 fun <T> Permissions.toTransport(toTransport: (permission: EntityPermission) -> T) =
