@@ -1,5 +1,4 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import io.ktor.plugin.features.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
@@ -171,7 +170,7 @@ tasks {
 //    val imageName = registryPref?.let { "$it/${project.name}" } ?: project.name
 
     val imageName = project.name
-    
+
     val dockerBuildX64Image by creating(DockerBuildImage::class) {
         group = "docker"
         dependsOn(dockerDockerfileX64)

@@ -97,6 +97,5 @@ internal fun Route.reference(appContext: AppContext) {
                 }
             )
         }
-
     }
 }

@@ -53,7 +53,6 @@ class StubProcessor : IProcessor {
         }
     }
 
-
     companion object {
 
         val countries = listOf(
@@ -142,5 +141,4 @@ class StubProcessor : IProcessor {
         )
 
     }
-
 }

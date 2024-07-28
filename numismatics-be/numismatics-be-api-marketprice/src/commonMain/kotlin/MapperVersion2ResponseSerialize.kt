@@ -5,3 +5,4 @@ import ru.numismatics.backend.api.v2.mapper.v2Mapper
 
 fun v2ResponseSerialize(obj: MarketPriceResponse) =
     v2Mapper.encodeToString(MarketPriceResponse.serializer(), obj)
+

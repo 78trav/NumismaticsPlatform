@@ -106,5 +106,4 @@ class V2StubReferenceReadTest : TestApplicationV2("ref") {
             assertEquals(refInt.parentId.toLong(), refExt.parentId)
         }
     }
-
 }

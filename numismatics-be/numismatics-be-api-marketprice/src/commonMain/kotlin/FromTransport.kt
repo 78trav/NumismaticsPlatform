@@ -64,3 +64,4 @@ private fun MarketPrice?.toInternal(): MarketPriceInternal? =
     this?.date.toLocalDateNP()?.let { date ->
         MarketPriceInternal(date, max(this?.amount ?: 0f, 0f))
     }
+

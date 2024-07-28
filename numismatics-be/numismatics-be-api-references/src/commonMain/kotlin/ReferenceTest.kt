@@ -37,5 +37,4 @@ abstract class ReferenceTest(protected val command: Command) {
             parentId = 7
         )
     }
-
 }
