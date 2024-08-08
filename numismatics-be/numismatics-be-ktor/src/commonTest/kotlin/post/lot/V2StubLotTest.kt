@@ -2,7 +2,7 @@ package ru.numismatics.platform.app.ktor.test.post.lot
 
 import io.ktor.client.call.*
 import ru.numismatics.backend.api.v2.models.*
-import ru.numismatics.backend.stub.StubProcessor
+import ru.numismatics.backend.stub.StubValues
 import ru.numismatics.platform.app.ktor.test.post.TestApplicationV2
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,7 +22,7 @@ class V2StubLotTest() : TestApplicationV2("v2") {
         postTest(
             func = "create",
             request = LotCreateRequest(
-                lot = LotCreateObjectV2(),
+                lot = LotCreateObject2(),
                 debug = debug
             ),
         ) { response ->
@@ -32,8 +32,8 @@ class V2StubLotTest() : TestApplicationV2("v2") {
             val responseObj = response.body<LotCreateResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lot
-            assertTrue(refExt is LotResponseV2)
+            val refExt = responseObj.lots?.firstOrNull()
+            assertTrue(refExt is LotResponse2)
 
             checkLot(refExt)
         }
@@ -56,8 +56,8 @@ class V2StubLotTest() : TestApplicationV2("v2") {
             val responseObj = response.body<LotReadResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lot
-            assertTrue(refExt is LotResponseV2)
+            val refExt = responseObj.lots?.firstOrNull()
+            assertTrue(refExt is LotResponse2)
 
             checkLot(refExt)
         }
@@ -70,7 +70,7 @@ class V2StubLotTest() : TestApplicationV2("v2") {
         postTest(
             func = "update",
             request = LotUpdateRequest(
-                lot = LotUpdateObjectV2(),
+                lot = LotUpdateObject2(),
                 debug = debug
             ),
         ) { response ->
@@ -80,8 +80,8 @@ class V2StubLotTest() : TestApplicationV2("v2") {
             val responseObj = response.body<LotUpdateResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lot
-            assertTrue(refExt is LotResponseV2)
+            val refExt = responseObj.lots?.firstOrNull()
+            assertTrue(refExt is LotResponse2)
 
             checkLot(refExt)
         }
@@ -104,8 +104,8 @@ class V2StubLotTest() : TestApplicationV2("v2") {
             val responseObj = response.body<LotDeleteResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lot
-            assertTrue(refExt is LotResponseV2)
+            val refExt = responseObj.lots?.firstOrNull()
+            assertTrue(refExt is LotResponse2)
 
             checkLot(refExt)
         }
@@ -118,7 +118,7 @@ class V2StubLotTest() : TestApplicationV2("v2") {
         postTest(
             func = "search",
             request = LotSearchRequest(
-                filter = LotSearchFilterV2(),
+                filter = LotSearchFilter2(),
                 debug = debug
             ),
         ) { response ->
@@ -128,17 +128,17 @@ class V2StubLotTest() : TestApplicationV2("v2") {
             val responseObj = response.body<LotSearchResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lots?.first()
-            assertTrue(refExt is LotResponseV2)
+            val refExt = responseObj.lots?.firstOrNull()
+            assertTrue(refExt is LotResponse2)
 
             checkLot(refExt)
         }
     }
 
-    private fun checkLot(refExt: LotResponseV2) {
-        val refInt = StubProcessor.lots.first()
+    private fun checkLot(refExt: LotResponse2) {
+        val refInt = StubValues.lots.first()
 
-        assertEquals(refInt.id.toLong(), refExt.id)
+        assertEquals(refInt.id().toLong(), refExt.id)
         assertEquals(refInt.name, refExt.name)
         assertEquals(refInt.description, refExt.description)
         assertEquals(refInt.isCoin, refExt.coin)
@@ -147,14 +147,11 @@ class V2StubLotTest() : TestApplicationV2("v2") {
         assertEquals(refInt.denomination, refExt.denomination)
         assertEquals(refInt.quantity.toInt(), refExt.quantity)
         assertEquals(refInt.weight, refExt.weight?.mass)
-        assertEquals(refInt.materialId.toLong(), refExt.weight?.material?.id)
-        assertEquals(refInt.countryId.toLong(), refExt.country?.id)
+        assertEquals(refInt.materialId.id().toLong(), refExt.weight?.materialId)
+        assertEquals(refInt.countryId.id().toLong(), refExt.countryId)
         assertEquals(Condition.PF, refExt.condition)
         assertEquals(1, refExt.permissions?.size)
         assertTrue(refExt.permissions?.contains(EntityPermission.READ) ?: false)
-        assertEquals(2, refExt.photos?.size)
-        assertTrue(refExt.photos?.containsAll(setOf(StubProcessor.PHOTO_1, StubProcessor.PHOTO_2)) ?: false)
         assertEquals(refInt.lock.asString(), refExt.lock)
     }
-
 }

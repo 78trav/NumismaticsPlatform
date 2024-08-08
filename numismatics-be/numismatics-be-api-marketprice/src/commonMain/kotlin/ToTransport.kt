@@ -1,7 +1,7 @@
 package ru.numismatics.backend.api.marketprice
 
 import ru.numismatics.backend.api.marketprice.models.*
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.Command
 import ru.numismatics.backend.common.models.core.EntityType
 import ru.numismatics.backend.common.models.core.State

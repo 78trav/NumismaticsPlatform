@@ -1,0 +1,7 @@
+# list of header files to generate Kotlin stubs
+# установить libpq-dev
+headers = postgresql/libpq-fe.h
+
+# You also need to specify linking parameters for different platforms
+compilerOpts.linux_x64 = -I/usr/include -I/usr/include/x86_64-linux-gnu -lpq
+linkerOpts.linux_x64 = -L/usr/lib/x86_64-linux-gnu -lpq

@@ -4,6 +4,6 @@ plugins {
 
 rootProject.name = "ru-numismatics-platform"
 
-listOf("numismatics-be").forEach {
+listOf("numismatics-be", "numismatics-libs").forEach {
     includeBuild(it)
 }

@@ -12,6 +12,9 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
 
                 api(libs.kotlinx.datetime)
+                implementation(libs.valid)
+                implementation(libs.kotlinx.coroutines)
+
             }
         }
         commonTest {

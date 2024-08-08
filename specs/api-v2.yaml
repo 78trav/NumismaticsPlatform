@@ -165,33 +165,33 @@ components:
               ws_init: '#/components/schemas/LotWSInitCloseResponse'
               ws_close: '#/components/schemas/LotWSInitCloseResponse'
 
-    LotResponseV2:
+    LotResponse2:
       type: object
       allOf:
         - $ref: './api-v1.yaml#/components/schemas/LotResponse'
         - type: object
           properties:
-            section:
-              $ref: './api-references.yaml#/components/schemas/Section'
+            sectionId:
+              $ref: './api-core.yaml#/components/schemas/EntityId'
 
-    OneLotResponse:
-      description: Ответ с одним лотом
-      type: object
-      properties:
-        lot:
-          $ref: '#/components/schemas/LotResponseV2'
+#    OneLotResponse:
+#      description: Ответ с одним лотом
+#      type: object
+#      properties:
+#        lot:
+#          $ref: '#/components/schemas/LotResponseV2'
 
-    ManyLotsResponse:
+    LotsResponse2:
       description: Ответ с несколькими лотами
       type: object
       properties:
         lots:
           type: array
           items:
-            $ref: '#/components/schemas/LotResponseV2'
+            $ref: '#/components/schemas/LotResponse2'
 
     # создание лота
-    LotCreateObjectV2:
+    LotCreateObject2:
       type: object
       allOf:
         - $ref: './api-v1.yaml#/components/schemas/LotCreateObject'
@@ -207,13 +207,13 @@ components:
         - type: object
           properties:
             lot:
-              $ref: '#/components/schemas/LotCreateObjectV2'
+              $ref: '#/components/schemas/LotCreateObject2'
 
     LotCreateResponse:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/OneLotResponse'
+        - $ref: '#/components/schemas/LotsResponse2'
 
     # чтение лота
     LotReadRequest:
@@ -229,10 +229,10 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/OneLotResponse'
+        - $ref: '#/components/schemas/LotsResponse2'
 
     # изменение лота
-    LotUpdateObjectV2:
+    LotUpdateObject2:
       type: object
       allOf:
         - $ref: './api-v1.yaml#/components/schemas/LotUpdateObject'
@@ -248,13 +248,13 @@ components:
         - type: object
           properties:
             lot:
-              $ref: '#/components/schemas/LotUpdateObjectV2'
+              $ref: '#/components/schemas/LotUpdateObject2'
 
     LotUpdateResponse:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/OneLotResponse'
+        - $ref: '#/components/schemas/LotsResponse2'
 
     # удаление лота
     LotDeleteRequest:
@@ -270,10 +270,10 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/OneLotResponse'
+        - $ref: '#/components/schemas/LotsResponse2'
 
     # поиск лотов
-    LotSearchFilterV2:
+    LotSearchFilter2:
       type: object
       allOf:
         - $ref: './api-v1.yaml#/components/schemas/LotSearchFilter'
@@ -290,13 +290,13 @@ components:
         - type: object
           properties:
             filter:
-              $ref: '#/components/schemas/LotSearchFilterV2'
+              $ref: '#/components/schemas/LotSearchFilter2'
 
     LotSearchResponse:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/ManyLotsResponse'
+        - $ref: '#/components/schemas/LotsResponse2'
 
     # инициализация и закрытие
     LotWSInitCloseResponse:

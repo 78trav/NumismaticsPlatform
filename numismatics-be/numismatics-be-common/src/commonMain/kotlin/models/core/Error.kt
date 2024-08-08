@@ -6,6 +6,10 @@ data class Error(
     val field: String = "",
     val message: String = "",
     val exception: Throwable? = null
-)
+) {
+    companion object {
+        val NO_ERROR = Error()
+    }
+}
 
 typealias Errors = MutableList<Error>

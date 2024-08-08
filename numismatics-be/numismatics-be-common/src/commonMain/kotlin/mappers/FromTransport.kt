@@ -1,46 +1,76 @@
 package ru.numismatics.backend.common.mappers
 
 import ru.numismatics.backend.common.models.core.Condition
+import ru.numismatics.backend.common.models.core.Error
 import ru.numismatics.backend.common.models.core.RequestType
 import ru.numismatics.backend.common.stubs.Stubs
+import ru.numismatics.platform.libs.validation.ValidationEr
+import ru.numismatics.platform.libs.validation.ValidationOk
+import ru.numismatics.platform.libs.validation.ValidationResult
 
-fun modeToInternal(value: String?) = when (value) {
-    "prod" -> RequestType.PROD
-    "test" -> RequestType.TEST
-    "stub" -> RequestType.STUB
-    else -> RequestType.PROD
+fun String?.toMode(): ValidationResult<RequestType, Error> = when (this?.uppercase()) {
+    "PROD" -> ValidationOk(RequestType.PROD)
+    "TEST" -> ValidationOk(RequestType.TEST)
+    "STUB" -> ValidationOk(RequestType.STUB)
+    null -> ValidationOk(RequestType.PROD)
+    else -> ValidationEr(
+        Error(
+            code = "wrong-mode",
+            group = "mapper-validation",
+            field = "debug.mode",
+            message = "Unsupported value for mode \"$this\""
+        )
+    )
 }
 
-fun stubCaseToInternal(value: String?) = when (value) {
-    "success" -> Stubs.SUCCESS
-    "notFound" -> Stubs.NOT_FOUND
-    "badId" -> Stubs.BAD_ID
-    "badName" -> Stubs.BAD_NAME
-    "badDescription" -> Stubs.BAD_DESCRIPTION
-    "badVisibility" -> Stubs.BAD_VISIBILITY
-    "badSearch" -> Stubs.BAD_SEARCH
-    "cannotCreate" -> Stubs.CANNOT_CREATE
-    "cannotUpdate" -> Stubs.CANNOT_UPDATE
-    "cannotDelete" -> Stubs.CANNOT_DELETE
-    else -> Stubs.NONE
+fun String?.toStubCase(): ValidationResult<Stubs, Error> = when (this) {
+    "success" -> ValidationOk(Stubs.SUCCESS)
+    "notFound" -> ValidationOk(Stubs.NOT_FOUND)
+    "badId" -> ValidationOk(Stubs.BAD_ID)
+    "badName" -> ValidationOk(Stubs.BAD_NAME)
+    "badDescription" -> ValidationOk(Stubs.BAD_DESCRIPTION)
+    "badVisibility" -> ValidationOk(Stubs.BAD_VISIBILITY)
+    "badSearch" -> ValidationOk(Stubs.BAD_SEARCH)
+    "cannotCreate" -> ValidationOk(Stubs.CANNOT_CREATE)
+    "cannotUpdate" -> ValidationOk(Stubs.CANNOT_UPDATE)
+    "cannotDelete" -> ValidationOk(Stubs.CANNOT_DELETE)
+    null -> ValidationOk(Stubs.NONE)
+    else -> ValidationEr(
+        Error(
+            code = "wrong-stub-case",
+            group = "mapper-validation",
+            field = "debug.stub",
+            message = "Unsupported value for case \"$this\""
+        )
+    )
 }
 
-fun conditionToInternal(value: String?) = when (value) {
-    "PF" -> Condition.PF
-    "PL" -> Condition.PL
-    "BU" -> Condition.BU
-    "UNC" -> Condition.UNC
-    "AU+" -> Condition.AU_PLUS
-    "AU" -> Condition.AU
-    "XF+" -> Condition.XF_PLUS
-    "XF" -> Condition.XF
-    "VF+" -> Condition.VF_PLUS
-    "VF" -> Condition.VF
-    "F" -> Condition.F
-    "VG" -> Condition.VG
-    "G" -> Condition.G
-    "AG" -> Condition.AG
-    "FA" -> Condition.FA
-    "PR" -> Condition.PR
-    else -> Condition.UNDEFINED
+fun String?.toCondition(): ValidationResult<Condition, Error> = when (this?.uppercase()) {
+    "PF" -> ValidationOk(Condition.PF)
+    "PL" -> ValidationOk(Condition.PL)
+    "BU" -> ValidationOk(Condition.BU)
+    "UNC" -> ValidationOk(Condition.UNC)
+    "AU+" -> ValidationOk(Condition.AU_PLUS)
+    "AU" -> ValidationOk(Condition.AU)
+    "XF+" -> ValidationOk(Condition.XF_PLUS)
+    "XF_PLUS" -> ValidationOk(Condition.XF_PLUS)
+    "XF" -> ValidationOk(Condition.XF)
+    "VF+" -> ValidationOk(Condition.VF_PLUS)
+    "VF_PLUS" -> ValidationOk(Condition.VF_PLUS)
+    "VF" -> ValidationOk(Condition.VF)
+    "F" -> ValidationOk(Condition.F)
+    "VG" -> ValidationOk(Condition.VG)
+    "G" -> ValidationOk(Condition.G)
+    "AG" -> ValidationOk(Condition.AG)
+    "FA" -> ValidationOk(Condition.FA)
+    "PR" -> ValidationOk(Condition.PR)
+    null -> ValidationOk(Condition.UNDEFINED)
+    else -> ValidationEr(
+        Error(
+            code = "wrong-condition",
+            group = "mapper-validation",
+            field = "condition",
+            message = "Unsupported value for condition \"$this\""
+        )
+    )
 }

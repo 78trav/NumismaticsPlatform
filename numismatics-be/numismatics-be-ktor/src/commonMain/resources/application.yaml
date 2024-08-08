@@ -11,7 +11,7 @@ ktor:
     - resources
   application:
     modules:
-      - "ru.numismatics.platform.app.ktor.v2.Version2ModuleKt.version2Module"
+      - "ru.numismatics.platform.app.ktor.Version2ModuleKt.version2Module"
 #      - "ru.otus.otuskotlin.marketplace.app.ktor.ApplicationKt.module"
 #  urls:
 #    - "http://127.0.0.1:8080/v1"
@@ -28,3 +28,12 @@ ktor:
 #  logger: socket
 #  socketLogger:
 #    port: 24224
+
+np:
+  repository:
+    test: "mem"
+    prod: "pg"
+
+  mem:
+    ttl: "15m"
+    stubs: "yes"

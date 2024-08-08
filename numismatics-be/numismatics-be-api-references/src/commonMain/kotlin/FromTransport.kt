@@ -1,20 +1,30 @@
 package ru.numismatics.backend.api.references
 
 import ru.numismatics.backend.api.refs.models.*
-import ru.numismatics.backend.common.NumismaticsPlatformContext
-import ru.numismatics.backend.common.mappers.modeToInternal
-import ru.numismatics.backend.common.mappers.stubCaseToInternal
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
+import ru.numismatics.backend.common.mappers.toMode
+import ru.numismatics.backend.common.mappers.toStubCase
 import ru.numismatics.backend.common.models.core.Command
 import ru.numismatics.backend.common.models.core.EntityType
+import ru.numismatics.backend.common.models.core.RequestType
+import ru.numismatics.backend.common.models.core.State
 import ru.numismatics.backend.common.models.entities.EmptyEntity
 import ru.numismatics.backend.common.models.id.*
+import ru.numismatics.backend.common.stubs.Stubs
+import ru.numismatics.platform.libs.validation.getOrExec
 import ru.numismatics.backend.common.models.entities.Material as MaterialInternal
 import ru.numismatics.backend.common.models.entities.Country as CountryInternal
 import ru.numismatics.backend.common.models.entities.Section as SectionInternal
 
 fun NumismaticsPlatformContext.fromTransport(request: IReferenceRequest) {
-    requestType = modeToInternal(request.debug?.mode?.value)
-    stubCase = stubCaseToInternal(request.debug?.stub?.value)
+    requestType = request.debug?.mode?.value.toMode().getOrExec(RequestType.TEST) { er ->
+        errors.addAll(er.errors)
+        state = State.FAILING
+    }
+    stubCase = request.debug?.stub?.value.toStubCase().getOrExec(Stubs.NONE) { er ->
+        errors.addAll(er.errors)
+        state = State.FAILING
+    }
 
     command = when (request) {
         is ReferenceCreateRequest -> {

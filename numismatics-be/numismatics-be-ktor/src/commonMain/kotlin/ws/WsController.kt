@@ -4,23 +4,24 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.*
 import ru.numismatics.backend.common.models.core.Command
-import ru.numismatics.backend.common.AppContext
-import ru.numismatics.backend.common.NumismaticsPlatformContext
+import ru.numismatics.backend.common.context.AppContext
+import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.controllerHelper
+import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.platform.app.ktor.base.KtorWsSession
 import kotlin.reflect.KClass
 
 private val wsHandlerClass: KClass<*> = WebSocketSession::wsHandler::class
 
 suspend fun WebSocketSession.wsHandler(
-    appContext: AppContext,
-    request: NumismaticsPlatformContext.(source: String) -> Unit,
-    response: NumismaticsPlatformContext.() -> String
+    appContext: AppContext<Lot>,
+    request: NumismaticsPlatformContext<Lot>.(source: String) -> Unit,
+    response: NumismaticsPlatformContext<Lot>.() -> String
 ) {
     with(KtorWsSession(this)) {
 
         // Обновление реестра сессий
-        val sessions = appContext.wsSessions
+        val sessions = appContext.corSettings.wsSessions
         sessions.add(this)
 
         // Handle init request

@@ -50,8 +50,10 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(libs.jackson.kotlin)
     implementation(libs.jackson.datatype)
-    implementation(project(":numismatics-be-common"))
+    implementation(projects.numismaticsBeCommon)
+    testImplementation(projects.numismaticsBeStubs)
     testImplementation(kotlin("test"))
+    implementation(libs.valid)
 }
 
 tasks {

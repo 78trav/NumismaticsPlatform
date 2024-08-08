@@ -136,6 +136,7 @@ components:
               description: Проба
               type: number
               format: float
+              minimum: 0
 
     Section:
       description: Раздел коллекции

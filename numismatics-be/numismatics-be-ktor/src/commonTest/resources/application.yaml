@@ -9,3 +9,7 @@ ktor:
     - resources
   application:
     modules: []
+
+np:
+  repository:
+    test: inMemory

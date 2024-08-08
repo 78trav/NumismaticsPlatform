@@ -11,3 +11,8 @@ ktor:
     - resources
   application:
     modules: []
+
+np:
+  repository:
+    test: "mem"
+    prod: "mem"

@@ -27,16 +27,19 @@ plugins {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 listOf(
-    "tmp",
+//    "tmp",
     "api-v1",
     "api-v2",
     "api-v2-mapper",
-    "api-references",
-    "api-marketprice",
+//    "api-references",
+//    "api-marketprice",
     "common",
     "ktor",
     "biz",
-    "stubs"
+    "stubs",
+    "repo-mem",
+    "repo-pg",
+    "repo-tests"
 ).forEach {
     include(":numismatics-be-$it")
 }

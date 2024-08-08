@@ -11,13 +11,20 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
 
                 implementation(project(":numismatics-be-common"))
-//                implementation(project(":ok-marketplace-stubs"))
+                implementation(project(":numismatics-be-stubs"))
+
+                implementation(libs.cor)
             }
         }
         commonTest {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
+
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(projects.numismaticsBeStubs)
+                implementation(projects.numismaticsBeRepoMem)
+
 
 //                api(libs.coroutines.test)
             }

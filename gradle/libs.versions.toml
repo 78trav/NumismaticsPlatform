@@ -1,6 +1,6 @@
 [versions]
-kotlin = "1.9.23"
-coroutines = "1.8.0"
+kotlin = "1.9.24"
+coroutines = "1.8.1"
 
 kotlinx-datetime = "0.5.0"
 kotlinx-serialization = "1.6.3"
@@ -20,6 +20,8 @@ jvm-compiler = "17"
 jvm-language = "17"
 
 kotest = "5.8.0"
+ktorm = "4.1.0"
+liquibase = "4.27.0"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -32,15 +34,32 @@ kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
-kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "coroutines" }
-kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "coroutines" }
-kotlinx-coroutines-jdk9 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk9", version.ref = "coroutines" }
+#kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "coroutines" }
+#kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "coroutines" }
+#kotlinx-coroutines-jdk9 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk9", version.ref = "coroutines" }
 
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jackson-datatype = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 
 test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+
+#cor = { module = "ru.numismatics.backend:cor-library" }
+cor = "ru.numismatics.backend:cor-library:0.1"
+valid = { module = "ru.numismatics.backend:valid-library" }
+uuid = "com.benasher44:uuid:0.8.4"
+
+# Databases
+db-cache4k = "io.github.reactivecircus.cache4k:cache4k:0.13.0"
+db-postgres = "org.postgresql:postgresql:42.7.3"
+
+ktorm-core = { module = "org.ktorm:ktorm-core", version.ref = "ktorm"}
+ktorm-pg = { module = "org.ktorm:ktorm-support-postgresql", version.ref = "ktorm"}
+
+# Liquidbase
+liquibase-core = { module = "org.liquibase:liquibase-core", version.ref = "liquibase" }
+liquibase-picocli = "info.picocli:picocli:4.7.5"
+liquibase-snakeyml = "org.yaml:snakeyaml:2.2"
 
 # Ktor
 ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktor" }
