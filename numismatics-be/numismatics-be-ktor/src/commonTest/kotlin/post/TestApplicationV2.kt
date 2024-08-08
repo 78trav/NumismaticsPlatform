@@ -7,6 +7,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.withTimeout
 import ru.numismatics.backend.api.v2.mapper.v2Mapper
@@ -22,6 +23,17 @@ abstract class TestApplicationV2(val endPoint: String) {
         crossinline function: suspend (HttpResponse) -> Unit,
     ) {
         testApplication {
+            environment {
+                if (config is MapApplicationConfig) {
+                    config = MapApplicationConfig(
+                        listOf(
+                            "np.repository.test" to "mem",
+                            "np.repository.prod" to "mem"
+                        )
+                    )
+                }
+            }
+
             application {
                 commonModule()
                 version2Module()
@@ -68,5 +80,4 @@ abstract class TestApplicationV2(val endPoint: String) {
             }
         }
     }
-
 }

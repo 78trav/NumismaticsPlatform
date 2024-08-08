@@ -28,4 +28,4 @@ fun Application.commonModule() {
 }
 
 fun Application.getEnvironmentConfig(key: String, defaultValue: String) =
-    this.environment.config.propertyOrNull(key)?.getString() ?: defaultValue
+    environment.config.propertyOrNull(key)?.getString() ?: defaultValue

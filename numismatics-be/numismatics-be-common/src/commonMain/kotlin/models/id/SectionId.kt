@@ -7,10 +7,10 @@ value class SectionId(private val id: Identifier) {
 
     fun asString(): String = id.toString()
 
-    fun toLong() = id.toLong()
+    fun id() = id
 
     companion object {
-        val EMPTY = SectionId(0U)
+        val EMPTY = SectionId(EMPTY_ID)
     }
 }
 
@@ -18,4 +18,4 @@ fun SectionId.isEmpty(): Boolean = (this == SectionId.EMPTY)
 
 fun SectionId.isNotEmpty(): Boolean = !isEmpty()
 
-fun Long?.toSectionId(): SectionId = if (this == null) SectionId.EMPTY else SectionId(this.toULong())
+fun Long?.toSectionId() = SectionId(this?.toULong() ?: EMPTY_ID)

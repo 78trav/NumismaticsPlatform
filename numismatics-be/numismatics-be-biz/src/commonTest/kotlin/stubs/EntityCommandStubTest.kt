@@ -5,29 +5,18 @@ import ru.numismatics.backend.common.context.CorSettings
 import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.context.wrongCommand
 import ru.numismatics.backend.common.models.core.Command
-import ru.numismatics.backend.common.models.core.EntityType
 import ru.numismatics.backend.common.models.core.RequestType
+import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.backend.common.stubs.Stubs
 import ru.numismatics.backend.common.stubs.toError
-import ru.numismatics.backend.stub.StubProcessor
+import ru.numismatics.backend.stub.StubValues
 import kotlin.test.assertEquals
 
 class EntityCommandStubTest(
-    private val command: Command,
-    private val entityType: EntityType
+    private val command: Command
 ) {
 
     private val processor = BizProcessor(CorSettings())
-
-    companion object {
-        private val entities = mapOf(
-            EntityType.COUNTRY to StubProcessor.countries.first(),
-            EntityType.MATERIAL to StubProcessor.materials.first(),
-            EntityType.SECTION to StubProcessor.sections.first(),
-            EntityType.LOT to StubProcessor.lots.first(),
-            EntityType.MARKET_PRICE to StubProcessor.lots.first()
-        )
-    }
 
     suspend fun successCommand() {
         // when
@@ -45,7 +34,7 @@ class EntityCommandStubTest(
                 // when
                 runStubCaseTest(stubCase) {
                     // then
-                    println("$entityType $stubCase")
+                    println("$stubCase")
                     assertEquals(1, errors.size)
                     assertEquals(stubCase.toError(), errors.first())
                 }
@@ -66,13 +55,12 @@ class EntityCommandStubTest(
             }
     }
 
-    private suspend fun runStubCaseTest(stubCase: Stubs, assertBlock: NumismaticsPlatformContext.() -> Unit) =
+    private suspend fun runStubCaseTest(stubCase: Stubs, assertBlock: NumismaticsPlatformContext<Lot>.() -> Unit) =
         NumismaticsPlatformContext(
             command = command,
             requestType = RequestType.STUB,
             stubCase = stubCase,
-            entityType = entityType,
-            entityRequest = entities[entityType]!!
+            entityRequest = StubValues.lots.first()
         ).also {
             processor.exec(it)
             it.assertBlock()

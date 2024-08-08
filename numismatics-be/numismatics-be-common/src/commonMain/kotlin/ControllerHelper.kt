@@ -6,17 +6,19 @@ import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.helpers.toError
 import ru.numismatics.backend.common.models.core.Command
 import ru.numismatics.backend.common.models.core.State
+import ru.numismatics.backend.common.models.entities.Lot
 import kotlin.reflect.KClass
 
-suspend inline fun AppContext.controllerHelper(
-    crossinline getRequest: suspend NumismaticsPlatformContext.() -> Unit,
-    crossinline toResponse: suspend NumismaticsPlatformContext.() -> Unit,
+suspend inline fun AppContext<Lot>.controllerHelper(
+    crossinline getRequest: suspend NumismaticsPlatformContext<Lot>.() -> Unit,
+    crossinline toResponse: suspend NumismaticsPlatformContext<Lot>.() -> Unit,
     clazz: KClass<*>,
     logId: String
 ) {
     println("$clazz $logId")
 //    val logger = corSettings.loggerProvider.logger(clazz)
     val context = NumismaticsPlatformContext(
+        entityRequest = Lot.EMPTY,
         timeStart = Clock.System.now()
     )
     try {
@@ -43,8 +45,10 @@ suspend inline fun AppContext.controllerHelper(
 //            e = e,
 //        )
 //        println(6)
+        val er = e.toError()
+        println(er)
         context.state = State.FAILING
-        context.errors.add(e.toError())
+        context.errors.add(er)
         processor.exec(context)
         if (context.command == Command.NONE) {
             context.command = Command.READ

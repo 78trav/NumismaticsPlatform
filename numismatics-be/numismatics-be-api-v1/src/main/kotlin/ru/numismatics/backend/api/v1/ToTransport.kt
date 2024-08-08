@@ -3,9 +3,7 @@ package ru.numismatics.backend.api.v1
 import ru.numismatics.backend.api.v1.models.*
 import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.Command
-import ru.numismatics.backend.common.models.core.EntityType
 import ru.numismatics.backend.common.models.core.State
-import ru.numismatics.backend.common.models.entities.Entities
 import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.backend.common.models.entities.toTransport
 import ru.numismatics.backend.common.models.exception.UnknownCommand
@@ -14,76 +12,65 @@ import ru.numismatics.backend.common.models.core.Condition as ConditionInternal
 import ru.numismatics.backend.common.models.core.EntityPermission as PermissionInternal
 import ru.numismatics.backend.common.models.core.Error as ErrorInternal
 
-fun NumismaticsPlatformContext.toTransport(): ILotResponse =
+fun NumismaticsPlatformContext<Lot>.toTransport(): ILotResponse =
     if (command in setOf(Command.WS_INIT, Command.WS_CLOSE))
         lotWsInitCloseToTransport()
     else
-        if (entityType == EntityType.LOT)
-            when (command) {
-                Command.CREATE -> lotCreateToTransport()
-                Command.READ -> lotReadToTransport()
-                Command.UPDATE -> lotUpdateToTransport()
-                Command.DELETE -> lotDeleteToTransport()
-                Command.SEARCH -> lotsToTransport()
-                else -> throw UnknownCommand(command, entityType)
-            }
-        else throw UnknownCommand(command, entityType)
+        when (command) {
+            Command.CREATE -> lotCreateToTransport()
+            Command.READ -> lotReadToTransport()
+            Command.UPDATE -> lotUpdateToTransport()
+            Command.DELETE -> lotDeleteToTransport()
+            Command.SEARCH -> lotsToTransport()
+            else -> throw UnknownCommand(command, entityRequest::class.simpleName)
+        }
 
-fun NumismaticsPlatformContext.lotCreateToTransport() = LotCreateResponse(
+fun NumismaticsPlatformContext<Lot>.lotCreateToTransport() = LotCreateResponse(
     responseType = "create",
     result = state.toResult(),
-    errors = errors.toTransport(),
-    lot = entityResponse.lotToTransport()
+    errors = errors.errorToTransport(),
+    lots = entityResponse.lotsToTransport()
 )
 
-fun NumismaticsPlatformContext.lotReadToTransport() = LotReadResponse(
+fun NumismaticsPlatformContext<Lot>.lotReadToTransport() = LotReadResponse(
     responseType = "read",
     result = state.toResult(),
-    errors = errors.toTransport(),
-    lot = entityResponse.lotToTransport()
+    errors = errors.errorToTransport(),
+    lots = entityResponse.lotsToTransport()
 )
 
-fun NumismaticsPlatformContext.lotUpdateToTransport() = LotUpdateResponse(
+fun NumismaticsPlatformContext<Lot>.lotUpdateToTransport() = LotUpdateResponse(
     responseType = "update",
     result = state.toResult(),
-    errors = errors.toTransport(),
-    lot = entityResponse.lotToTransport()
+    errors = errors.errorToTransport(),
+    lots = entityResponse.lotsToTransport()
 )
 
-fun NumismaticsPlatformContext.lotDeleteToTransport() = LotDeleteResponse(
+fun NumismaticsPlatformContext<Lot>.lotDeleteToTransport() = LotDeleteResponse(
     responseType = "delete",
     result = state.toResult(),
-    errors = errors.toTransport(),
-    lot = entityResponse.lotToTransport()
+    errors = errors.errorToTransport(),
+    lots = entityResponse.lotsToTransport()
 )
 
-fun NumismaticsPlatformContext.lotWsInitCloseToTransport() = LotWSInitCloseResponse(
+fun NumismaticsPlatformContext<Lot>.lotWsInitCloseToTransport() = LotWSInitCloseResponse(
     result = state.toResult(),
-    errors = errors.toTransport()
+    errors = errors.errorToTransport()
 )
 
-fun NumismaticsPlatformContext.lotsToTransport() = LotSearchResponse(
+fun NumismaticsPlatformContext<Lot>.lotsToTransport() = LotSearchResponse(
     responseType = "search",
     result = state.toResult(),
-    errors = errors.toTransport(),
-    lots = entityResponse
-        .filterIsInstance<Lot>()
-        .map { it.toTransport() }
-        .takeIf { it.isNotEmpty() }
+    errors = errors.errorToTransport(),
+    lots = entityResponse.lotsToTransport()
 )
 
-private fun Entities.lotToTransport() =
-    try {
-        this
-            .filterIsInstance<Lot>()
-            .first()
-            .toTransport()
-    } catch (_: Exception) {
-        null
-    }
+private fun MutableList<Lot>.lotsToTransport() = this
+    .map { it.toTransport() }
+    .takeIf { it.isNotEmpty() }
 
 fun Lot.toTransport() = LotResponse(
-    id = id.takeIf { it.isNotEmpty() }?.toLong(),
+    id = id.takeIf { it.isNotEmpty() }?.id()?.toLong(),
     name = name.takeIf { it.isNotBlank() },
     description = description.takeIf { it.isNotBlank() },
     coin = isCoin,
@@ -92,16 +79,15 @@ fun Lot.toTransport() = LotResponse(
     denomination = denomination.takeIf { it.isNotBlank() },
     weight = takeIf { (weight > 0) || (materialId.isNotEmpty()) }?.let {
         LotWeight(
-            material = Material(materialId.toLong()),
+            materialId = materialId.id().toLong(),
             mass = weight
         )
     },
     condition = condition.toTransport(),
     serialNumber = serialNumber.takeIf { it.isNotBlank() },
     quantity = quantity.toInt(),
-    photos = photos.map { it.asString() }.takeIf { it.isNotEmpty() },
     ownerId = ownerId.takeIf { it.isNotEmpty() }?.asString(),
-    country = takeIf { countryId.isNotEmpty() }?.let { Country(countryId.toLong()) },
+    countryId = takeIf { countryId.isNotEmpty() }?.let { countryId.id().toLong() },
     permissions = getPermissions().toTransport { it.toTransport() },
     lock = lock.takeIf { it.isNotEmpty() }?.asString()
 )
@@ -133,7 +119,7 @@ fun PermissionInternal.toTransport() = when (this) {
     PermissionInternal.DELETE -> EntityPermission.DELETE
 }
 
-private fun MutableList<ErrorInternal>.toTransport(): List<Error>? = this
+private fun MutableList<ErrorInternal>.errorToTransport(): List<Error>? = this
     .map { it.toTransport() }
     .toList()
     .takeIf { it.isNotEmpty() }

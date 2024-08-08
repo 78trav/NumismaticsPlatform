@@ -5,7 +5,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
-import io.ktor.util.reflect.*
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 import ru.numismatics.backend.api.v2.fromTransport
@@ -15,12 +14,13 @@ import ru.numismatics.backend.api.v2.toTransport
 import ru.numismatics.backend.api.v2.v2ResponseSerialize
 import ru.numismatics.backend.common.controllerHelper
 import ru.numismatics.backend.common.context.AppContext
+import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.platform.app.ktor.ws.wsHandler
 import kotlin.reflect.KClass
 
 @OptIn(InternalSerializationApi::class)
 private suspend inline fun <reified Q : ILotRequest, reified R : ILotResponse> ApplicationCall.lotProcess(
-    appContext: AppContext,
+    appContext: AppContext<Lot>,
     clazz: KClass<*>,
     logId: String
 ) {
@@ -41,32 +41,32 @@ private suspend inline fun <reified Q : ILotRequest, reified R : ILotResponse> A
     )
 }
 
-private suspend fun ApplicationCall.lotCreate(appContext: AppContext) {
+private suspend fun ApplicationCall.lotCreate(appContext: AppContext<Lot>) {
     val cl: KClass<*> = ApplicationCall::lotCreate::class
     lotProcess<LotCreateRequest, LotCreateResponse>(appContext, cl, "${appContext.apiVersion.name}-lot-create")
 }
 
-private suspend fun ApplicationCall.lotRead(appContext: AppContext) {
+private suspend fun ApplicationCall.lotRead(appContext: AppContext<Lot>) {
     val cl: KClass<*> = ApplicationCall::lotRead::class
     lotProcess<LotReadRequest, LotReadResponse>(appContext, cl, "${appContext.apiVersion.name}-lot-read")
 }
 
-private suspend fun ApplicationCall.lotUpdate(appContext: AppContext) {
+private suspend fun ApplicationCall.lotUpdate(appContext: AppContext<Lot>) {
     val cl: KClass<*> = ApplicationCall::lotUpdate::class
     lotProcess<LotUpdateRequest, LotUpdateResponse>(appContext, cl, "${appContext.apiVersion.name}-lot-update")
 }
 
-private suspend fun ApplicationCall.lotDelete(appContext: AppContext) {
+private suspend fun ApplicationCall.lotDelete(appContext: AppContext<Lot>) {
     val cl: KClass<*> = ApplicationCall::lotDelete::class
     lotProcess<LotDeleteRequest, LotDeleteResponse>(appContext, cl, "${appContext.apiVersion.name}-lot-delete")
 }
 
-private suspend fun ApplicationCall.lotSearch(appContext: AppContext) {
+private suspend fun ApplicationCall.lotSearch(appContext: AppContext<Lot>) {
     val cl: KClass<*> = ApplicationCall::lotSearch::class
     lotProcess<LotSearchRequest, LotSearchResponse>(appContext, cl, "${appContext.apiVersion.name}-lot-search")
 }
 
-internal fun Route.lot(appContext: AppContext) {
+internal fun Route.lot(appContext: AppContext<Lot>) {
     route("v2") {
         post("create") {
             call.lotCreate(appContext)

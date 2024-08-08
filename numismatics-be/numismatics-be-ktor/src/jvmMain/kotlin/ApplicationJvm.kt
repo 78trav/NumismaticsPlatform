@@ -12,17 +12,16 @@ import io.ktor.server.routing.*
 import ru.numismatics.backend.api.v1.v1Mapper
 import ru.numismatics.backend.common.context.AppContext
 import ru.numismatics.backend.common.models.core.ApiVersion
+import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.platform.app.ktor.commonModule
 import ru.numismatics.platform.app.ktor.initAppContext
 import ru.numismatics.platform.app.ktor.jvm.v1.lot
-import ru.numismatics.platform.app.ktor.jvm.v1.marketPrice
-import ru.numismatics.platform.app.ktor.jvm.v1.reference
 
 // function with config (application.conf)
 //fun main(args: Array<String>): Unit = io.ktor.server.cio.EngineMain.main(args)
 
 fun Application.moduleJvm(
-    appContext: AppContext = initAppContext(ApiVersion.V1)
+    appContext: AppContext<Lot> = initAppContext(ApiVersion.V1)
 ) {
 
     commonModule()
@@ -53,11 +52,6 @@ fun Application.moduleJvm(
             call.respondText("Welcome to Numismatics Platform (jvm)!")
         }
 
-        reference(appContext)
-
         lot(appContext)
-
-        marketPrice(appContext)
-
     }
 }

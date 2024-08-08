@@ -2,10 +2,13 @@ package ru.numismatics.backend.common.models.entities
 
 import ru.numismatics.backend.common.models.id.LockId
 import ru.numismatics.backend.common.models.core.EntityPermission
+import ru.numismatics.backend.common.models.id.EMPTY_ID
+import ru.numismatics.backend.common.models.id.Identifier
+import ru.numismatics.backend.common.repo.rows.RowEntity
 
 typealias Permissions = MutableSet<EntityPermission>
 
-sealed class Entity {
+abstract class Entity {
     abstract val name: String
     abstract val description: String
     abstract val lock: LockId
@@ -14,7 +17,9 @@ sealed class Entity {
 
     abstract fun isEmpty(): Boolean
 
-    abstract fun deepCopy(name: String, description: String, lock: LockId): Entity
+    abstract fun deepCopy(): Entity
+
+    abstract fun id(): Identifier
 
     fun setPermissions(newPermissions: Set<EntityPermission>) {
         permissions.clear()
@@ -23,6 +28,7 @@ sealed class Entity {
 
     fun getPermissions() = permissions.toSet()
 
+    abstract fun toRowEntity(id: Identifier = EMPTY_ID, lock: String = ""): RowEntity
 }
 
 fun <T> Set<EntityPermission>.toTransport(toTransport: (permission: EntityPermission) -> T) =
@@ -30,6 +36,3 @@ fun <T> Set<EntityPermission>.toTransport(toTransport: (permission: EntityPermis
         .map { toTransport.invoke(it) }
         .toSet()
         .takeIf { it.isNotEmpty() }
-
-
-typealias Entities = MutableList<Entity>

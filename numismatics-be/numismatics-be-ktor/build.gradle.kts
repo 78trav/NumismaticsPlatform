@@ -68,8 +68,8 @@ kotlin {
 //                implementation(project(":ok-marketplace-app-common"))
 
                 // v2 api
-                implementation(project(":numismatics-be-api-references"))
-                implementation(project(":numismatics-be-api-marketprice"))
+//                implementation(project(":numismatics-be-api-references"))
+//                implementation(project(":numismatics-be-api-marketprice"))
                 implementation(project(":numismatics-be-api-v2"))
                 implementation(project(":numismatics-be-api-v2-mapper"))
 
@@ -81,6 +81,12 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.ktor.serialization.json)
+
+                // repo
+                implementation(project(":numismatics-be-repo-mem"))
+                implementation(project(":numismatics-be-repo-pg"))
+
+                implementation(project(":numismatics-be-stubs"))
 
 //                // logging
 //                implementation(project(":ok-marketplace-api-log1"))
@@ -99,6 +105,8 @@ kotlin {
                 implementation(libs.ktor.server.test)
                 implementation(libs.ktor.client.negotiation)
 
+                implementation(libs.ktor.server.yaml)
+
                 implementation(project(":numismatics-be-stubs"))
 //                implementation(project(":numismatics-be-api-v2-mapper"))
             }
@@ -116,8 +124,8 @@ kotlin {
 //                implementation(libs.logback)
 
                 // transport models
-                implementation(project(":numismatics-be-api-references"))
-                implementation(project(":numismatics-be-api-marketprice"))
+//                implementation(project(":numismatics-be-api-references"))
+//                implementation(project(":numismatics-be-api-marketprice"))
                 implementation(project(":numismatics-be-api-v1"))
 
 //                implementation("ru.otus.otuskotlin.marketplace.libs:ok-marketplace-lib-logging-logback")

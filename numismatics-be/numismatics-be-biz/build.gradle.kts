@@ -14,7 +14,6 @@ kotlin {
                 implementation(project(":numismatics-be-stubs"))
 
                 implementation(libs.cor)
-//                implementation(project(":ok-marketplace-stubs"))
             }
         }
         commonTest {
@@ -23,6 +22,9 @@ kotlin {
                 implementation(kotlin("test-annotations-common"))
 
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(projects.numismaticsBeStubs)
+                implementation(projects.numismaticsBeRepoMem)
+
 
 //                api(libs.coroutines.test)
             }

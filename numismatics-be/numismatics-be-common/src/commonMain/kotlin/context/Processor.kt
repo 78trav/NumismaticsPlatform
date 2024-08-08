@@ -1,5 +1,7 @@
 package ru.numismatics.backend.common.context
 
-abstract class Processor<T>(protected val corSettings: CorSettings) {
-    abstract suspend fun exec(context: T)
+import ru.numismatics.backend.common.models.entities.Entity
+
+abstract class Processor<T : Entity>(protected val corSettings: CorSettings<T>) {
+    abstract suspend fun exec(context: NumismaticsPlatformContext<T>)
 }

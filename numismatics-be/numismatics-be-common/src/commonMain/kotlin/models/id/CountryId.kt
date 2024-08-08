@@ -7,10 +7,10 @@ value class CountryId(private val id: Identifier) {
 
     fun asString(): String = id.toString()
 
-    fun toLong() = id.toLong()
+    fun id() = id
 
     companion object {
-        val EMPTY = CountryId(0U)
+        val EMPTY = CountryId(EMPTY_ID)
     }
 }
 
@@ -18,4 +18,4 @@ fun CountryId.isEmpty(): Boolean = (this == CountryId.EMPTY)
 
 fun CountryId.isNotEmpty(): Boolean = !isEmpty()
 
-fun Long?.toCountryId(): CountryId = if (this == null) CountryId.EMPTY else CountryId(this.toULong())
+fun Long?.toCountryId(): CountryId = CountryId(this?.toULong() ?: EMPTY_ID)

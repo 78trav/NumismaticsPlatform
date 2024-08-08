@@ -16,7 +16,7 @@ import ru.numismatics.platform.libs.validation.ValidationOk
 import ru.numismatics.platform.libs.validation.ValidationResult
 import ru.numismatics.platform.libs.validation.getOrExec
 
-fun NumismaticsPlatformContext.fromTransport(request: ILotRequest) {
+fun NumismaticsPlatformContext<Lot>.fromTransport(request: ILotRequest) {
     requestType = request.debug?.mode?.value.toMode().getOrExec(RequestType.TEST) { er ->
         errors.addAll(er.errors)
         state = State.FAILING
@@ -25,7 +25,6 @@ fun NumismaticsPlatformContext.fromTransport(request: ILotRequest) {
         errors.addAll(er.errors)
         state = State.FAILING
     }
-    entityType = EntityType.LOT
 
     when (request) {
         is LotCreateRequest -> fromTransport(request)
@@ -36,7 +35,7 @@ fun NumismaticsPlatformContext.fromTransport(request: ILotRequest) {
     }
 }
 
-fun NumismaticsPlatformContext.fromTransport(request: LotCreateRequest) {
+fun NumismaticsPlatformContext<Lot>.fromTransport(request: LotCreateRequest) {
     command = Command.CREATE
     entityRequest = request.lot.toInternal().getOrExec(Lot.EMPTY) { er ->
         errors.addAll(er.errors)
@@ -44,22 +43,22 @@ fun NumismaticsPlatformContext.fromTransport(request: LotCreateRequest) {
     }
 }
 
-fun NumismaticsPlatformContext.fromTransport(request: LotReadRequest) {
+fun NumismaticsPlatformContext<Lot>.fromTransport(request: LotReadRequest) {
     command = Command.READ
     entityRequest = request.lot.toInternal()
 }
 
-fun NumismaticsPlatformContext.fromTransport(request: LotUpdateRequest) {
+fun NumismaticsPlatformContext<Lot>.fromTransport(request: LotUpdateRequest) {
     command = Command.UPDATE
     entityRequest = request.lot.toInternal()
 }
 
-fun NumismaticsPlatformContext.fromTransport(request: LotDeleteRequest) {
+fun NumismaticsPlatformContext<Lot>.fromTransport(request: LotDeleteRequest) {
     command = Command.DELETE
     entityRequest = request.lot.toInternal()
 }
 
-fun NumismaticsPlatformContext.fromTransport(request: LotSearchRequest) {
+fun NumismaticsPlatformContext<Lot>.fromTransport(request: LotSearchRequest) {
     command = Command.SEARCH
     entityRequest = request.filter.toInternal()
 }
@@ -76,7 +75,7 @@ fun LotCreateObject?.toInternal(): ValidationResult<Lot, Error> =
                         code = "wrong-year",
                         group = "mapper-validation",
                         field = "year",
-                        message = "Value of year must be greater than 0"
+                        message = "Value of year must be equal or greater than 0"
                     )
                 )
             val condition = condition?.value.toCondition().getOrExec(Condition.UNDEFINED) { er ->
@@ -96,8 +95,7 @@ fun LotCreateObject?.toInternal(): ValidationResult<Lot, Error> =
                         weight = weight ?: 0f,
                         condition = condition,
                         serialNumber = serialNumber ?: "",
-                        quantity = quantity(quantity),
-                        photos = photos.toBase64StringList()
+                        quantity = quantity(quantity)
                     )
                 )
             else
@@ -124,7 +122,6 @@ fun LotUpdateObject?.toInternal() =
                 condition = condition?.value.toCondition().getOrExec(Condition.UNDEFINED),
                 serialNumber = serialNumber ?: "",
                 quantity = quantity(quantity),
-                photos = photos.toBase64StringList(),
                 lock = lock.toLockId()
             )
         }
@@ -142,12 +139,10 @@ fun LotSearchFilter?.toInternal() =
     if (this == null) Lot.EMPTY else
         with(this) {
             Lot(
-                name = name ?: "",
-                description = description ?: "",
+                description = searchString ?: "",
                 isCoin = coin ?: true,
                 year = year(year),
                 countryId = countryId.toCountryId(),
-                denomination = denomination ?: "",
                 materialId = materialId.toMaterialId(),
                 condition = condition?.value.toCondition().getOrExec(Condition.UNDEFINED)
             )

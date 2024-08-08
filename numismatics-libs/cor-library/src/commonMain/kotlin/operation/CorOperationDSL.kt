@@ -6,7 +6,7 @@ import ru.numismatics.platform.libs.cor.core.ICorExec
 import ru.numismatics.platform.libs.cor.work.CorJobDSL
 
 @CorDSL
-class CorOperationDSL<T>() : CorExecDSL<T>() {
+class CorOperationDSL<T> : CorExecDSL<T>() {
 
     override var name = ""
     override var description = ""

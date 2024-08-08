@@ -28,3 +28,19 @@ ktor:
 #  logger: socket
 #  socketLogger:
 #    port: 24224
+np:
+  repository:
+    test: "mem"
+    prod: "mem"
+
+    mem:
+      ttl: "15m"
+      stubs: "yes"
+
+    pg:
+      schema: public
+      database: "$MKPLADS_DB:numismatics"
+      host: "$MKPLADS_HOST:localhost"
+      port: "$MKPLADS_PORT:5432"
+      user: "$MKPLADS_USER:postgres"
+      password: "$MKPLADS_PASS:pg2k24"

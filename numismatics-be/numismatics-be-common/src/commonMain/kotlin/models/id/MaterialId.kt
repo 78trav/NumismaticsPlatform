@@ -7,10 +7,10 @@ value class MaterialId(private val id: Identifier) {
 
     fun asString(): String = id.toString()
 
-    fun toLong() = id.toLong()
+    fun id() = id
 
     companion object {
-        val EMPTY = MaterialId(0U)
+        val EMPTY = MaterialId(EMPTY_ID)
     }
 }
 
@@ -18,4 +18,4 @@ fun MaterialId.isEmpty(): Boolean = (this == MaterialId.EMPTY)
 
 fun MaterialId.isNotEmpty(): Boolean = !isEmpty()
 
-fun Long?.toMaterialId(): MaterialId = if (this == null) MaterialId.EMPTY else MaterialId(this.toULong())
+fun Long?.toMaterialId() = MaterialId(this?.toULong() ?: EMPTY_ID)

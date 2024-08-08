@@ -7,7 +7,7 @@ import ru.numismatics.backend.api.v2.models.LotCreateResponse
 import ru.numismatics.backend.api.v2.toTransport
 import ru.numismatics.backend.api.v2.v2ResponseSerialize
 import ru.numismatics.backend.common.models.core.Command
-import ru.numismatics.backend.common.models.core.EntityPermission
+import ru.numismatics.backend.stub.StubValues
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -26,30 +26,31 @@ class Mapper2SerializationDeserializationTest : TestValues() {
         // then
         println(source)
 
+        val lot = filledContext.entityResponse.first()
+
         assertContains(source, Regex("\"responseType\":\\s*\"create\""))
         assertContains(source, Regex("\"result\":\\s*\"success\""))
 
-        assertContains(source, Regex("\"code\":\\s*\"err\""))
-        assertContains(source, Regex("\"group\":\\s*\"request\""))
-        assertContains(source, Regex("\"field\":\\s*\"name\""))
-        assertContains(source, Regex("\"message\":\\s*\"wrong name\""))
-        assertContains(source, Regex("\"id\":\\s*100"))
+        assertContains(source, Regex("\"code\":\\s*\"${StubValues.error.code}\""))
+        assertContains(source, Regex("\"group\":\\s*\"${StubValues.error.group}\""))
+        assertContains(source, Regex("\"field\":\\s*\"${StubValues.error.field}\""))
+        assertContains(source, Regex("\"message\":\\s*\"${StubValues.error.message}\""))
+        assertContains(source, Regex("\"id\":\\s*${lot.id.asString()}"))
 
-        assertContains(source, Regex("\"name\":\\s*\"Киров 650\""))
-        assertContains(source, Regex("\"description\":\\s*\"650-летие основания г. Кирова\""))
-        assertContains(source, Regex("\"coin\":\\s*true"))
-        assertContains(source, Regex("\"year\":\\s*2024"))
-        assertContains(source, Regex("\"catalogueNumber\":\\s*\"5111-0502\""))
-        assertContains(source, Regex("\"denomination\":\\s*\"3 рубля\""))
-        assertContains(source, Regex("\"mass\":\\s*31.1"))
-        assertContains(source, Regex("\"id\":\\s*3"))
-        assertContains(source, Regex("\"condition\":\\s*\"PF\""))
+        assertContains(source, Regex("\"name\":\\s*\"${lot.name}\""))
+        assertContains(source, Regex("\"description\":\\s*\"${lot.description}\""))
+        assertContains(source, Regex("\"coin\":\\s*${lot.isCoin}"))
+        assertContains(source, Regex("\"year\":\\s*${lot.year}"))
+        assertContains(source, Regex("\"catalogueNumber\":\\s*\"${lot.catalogueNumber}\""))
+        assertContains(source, Regex("\"denomination\":\\s*\"${lot.denomination}\""))
+        assertContains(source, Regex("\"mass\":\\s*${lot.weight}"))
+        assertContains(source, Regex("\"materialId\":\\s*${lot.materialId.asString()}"))
+        assertContains(source, Regex("\"condition\":\\s*\"${lot.condition}\""))
 
-        assertContains(source, Regex("\"quantity\":\\s*1"))
-        assertContains(source, Regex("\"ownerId\":\\s*\"34da1510-a17b-11e9-728d-00241d9157c0\""))
-        assertContains(source, Regex("\"id\":\\s*2"))
-        assertContains(source, Regex("\"lock\":\\s*\"5698409\""))
-        assertContains(source, Regex("\"id\":\\s*15"))
+        assertContains(source, Regex("\"quantity\":\\s*${lot.quantity}"))
+        assertContains(source, Regex("\"ownerId\":\\s*\"${lot.ownerId.asString()}\""))
+        assertContains(source, Regex("\"countryId\":\\s*${lot.countryId.asString()}"))
+        assertContains(source, Regex("\"lock\":\\s*\"${lot.lock.asString()}\""))
     }
 
     @Test
@@ -57,17 +58,13 @@ class Mapper2SerializationDeserializationTest : TestValues() {
 
         // given
         val response = filledContext.copy(
-            command = Command.CREATE,
-            entityResponse = mutableListOf(
-                lotInt.copy().apply {
-                    setPermissions(setOf(EntityPermission.READ))
-                }
-            )
+            command = Command.CREATE
         ).toTransport() as LotCreateResponse
 
-        val source = """
-            {"responseType":"create","result":"success","errors":[{"code":"err","group":"request","field":"name","message":"wrong name"}],
-            "lot":{"id":100,"name":"Киров 650","description":"650-летие основания г. Кирова","coin":true,"year":2024,"catalogueNumber":"5111-0502","denomination":"3 рубля","weight":{"mass":31.1,"material":{"id":3}},"condition":"PF","quantity":1,"photos":["фото1","фото2"],"ownerId":"34da1510-a17b-11e9-728d-00241d9157c0","country":{"id":2},"lock":"5698409","permissions":["read"],"section":{"id":15}}}
+        val source =
+            """{"responseType":"create","result":"success","errors":[{"code":"err","group":"test","field":"test","message":"some testing error"}],
+            "lots":[{"id":1,"name":"Киров 650","description":"650-летие основания г. Кирова","coin":true,"year":2024,"catalogueNumber":"5111-0502","denomination":"3 рубля","weight":{"mass":31.1,"materialId":1},
+            "condition":"PF","quantity":1,"ownerId":"34da1510-a17b-11e9-728d-00241d9157c0","countryId":2,"lock":"test-lock","permissions":["read"],"sectionId":3}]}
         """.trimIndent()
 
         // when
@@ -81,7 +78,6 @@ class Mapper2SerializationDeserializationTest : TestValues() {
 
     @Test
     fun `deserialization LotCreateRequest`() {
-
 //        {"debug":{"mode":"stub","stub":"success"},"lot":{}}
     }
 

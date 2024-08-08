@@ -6,11 +6,9 @@ import ru.numismatics.backend.api.v1.models.*
 import ru.numismatics.backend.api.v1.models.Condition
 import ru.numismatics.backend.api.v1.models.EntityPermission
 import ru.numismatics.backend.api.v1.v1Mapper
-import ru.numismatics.backend.stub.StubProcessor
+import ru.numismatics.backend.stub.StubValues
 import ru.numismatics.platform.app.ktor.test.post.TestApplicationV1
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class V1StubLotTest : TestApplicationV1("v1") {
 
@@ -38,7 +36,7 @@ class V1StubLotTest : TestApplicationV1("v1") {
             val responseObj = response.body<LotCreateResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lot
+            val refExt = responseObj.lots?.firstOrNull()
             assertTrue(refExt is LotResponse)
 
             checkLot(refExt)
@@ -62,7 +60,7 @@ class V1StubLotTest : TestApplicationV1("v1") {
             val responseObj = response.body<LotReadResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lot
+            val refExt = responseObj.lots?.firstOrNull()
             assertTrue(refExt is LotResponse)
 
             checkLot(refExt)
@@ -86,8 +84,8 @@ class V1StubLotTest : TestApplicationV1("v1") {
             val responseObj = response.body<LotUpdateResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lot
-            assertTrue(refExt is LotResponse)
+            val refExt = responseObj.lots?.firstOrNull()
+            assertNotNull(refExt)
 
             checkLot(refExt)
         }
@@ -110,8 +108,8 @@ class V1StubLotTest : TestApplicationV1("v1") {
             val responseObj = response.body<LotDeleteResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lot
-            assertTrue(refExt is LotResponse)
+            val refExt = responseObj.lots?.firstOrNull()
+            assertNotNull(refExt)
 
             checkLot(refExt)
         }
@@ -134,8 +132,8 @@ class V1StubLotTest : TestApplicationV1("v1") {
             val responseObj = response.body<LotSearchResponse>()
             println(responseObj.toString())
 
-            val refExt = responseObj.lots?.first()
-            assertTrue(refExt is LotResponse)
+            val refExt = responseObj.lots?.firstOrNull()
+            assertNotNull(refExt)
 
             checkLot(refExt)
         }
@@ -157,9 +155,11 @@ class V1StubLotTest : TestApplicationV1("v1") {
             // then
             assertEquals(ResponseResult.SUCCESS, response.result)
             assertTrue(response is LotCreateResponse)
-            assertTrue(response.lot != null)
 
-            checkLot(response.lot!!)
+            val refExt = response.lots?.firstOrNull()
+            assertNotNull(refExt)
+
+            checkLot(refExt)
         }
     }
 
@@ -178,9 +178,11 @@ class V1StubLotTest : TestApplicationV1("v1") {
             // then
             assertEquals(ResponseResult.SUCCESS, response.result)
             assertTrue(response is LotReadResponse)
-            assertTrue(response.lot != null)
 
-            checkLot(response.lot!!)
+            val refExt = response.lots?.firstOrNull()
+            assertNotNull(refExt)
+
+            checkLot(refExt)
         }
     }
 
@@ -199,9 +201,11 @@ class V1StubLotTest : TestApplicationV1("v1") {
             // then
             assertEquals(ResponseResult.SUCCESS, response.result)
             assertTrue(response is LotUpdateResponse)
-            assertTrue(response.lot != null)
 
-            checkLot(response.lot!!)
+            val refExt = response.lots?.firstOrNull()
+            assertNotNull(refExt)
+
+            checkLot(refExt)
         }
     }
 
@@ -220,9 +224,11 @@ class V1StubLotTest : TestApplicationV1("v1") {
             // then
             assertEquals(ResponseResult.SUCCESS, response.result)
             assertTrue(response is LotDeleteResponse)
-            assertTrue(response.lot != null)
 
-            checkLot(response.lot!!)
+            val refExt = response.lots?.firstOrNull()
+            assertNotNull(refExt)
+
+            checkLot(refExt)
         }
     }
 
@@ -231,7 +237,7 @@ class V1StubLotTest : TestApplicationV1("v1") {
 
         // given
         val request = LotSearchRequest(
-            filter = LotSearchFilter(name = "find"),
+            filter = LotSearchFilter(searchString = "find"),
             debug = debug
         )
 
@@ -249,9 +255,9 @@ class V1StubLotTest : TestApplicationV1("v1") {
     }
 
     private fun checkLot(refExt: LotResponse) {
-        val refInt = StubProcessor.lots.first()
+        val refInt = StubValues.lots.first()
 
-        assertEquals(refInt.id.toLong(), refExt.id)
+        assertEquals(refInt.id().toLong(), refExt.id)
         assertEquals(refInt.name, refExt.name)
         assertEquals(refInt.description, refExt.description)
         assertEquals(refInt.isCoin, refExt.coin)
@@ -260,14 +266,11 @@ class V1StubLotTest : TestApplicationV1("v1") {
         assertEquals(refInt.denomination, refExt.denomination)
         assertEquals(refInt.quantity.toInt(), refExt.quantity)
         assertEquals(refInt.weight, refExt.weight?.mass)
-        assertEquals(refInt.materialId.toLong(), refExt.weight?.material?.id)
-        assertEquals(refInt.countryId.toLong(), refExt.country?.id)
+        assertEquals(refInt.materialId.id().toLong(), refExt.weight?.materialId)
+        assertEquals(refInt.countryId.id().toLong(), refExt.countryId)
         assertEquals(Condition.PF, refExt.condition)
         assertEquals(1, refExt.permissions?.size)
         assertTrue(refExt.permissions?.contains(EntityPermission.READ) ?: false)
-        assertEquals(2, refExt.photos?.size)
-        assertTrue(refExt.photos?.containsAll(setOf(StubProcessor.PHOTO_1, StubProcessor.PHOTO_2)) ?: false)
         assertEquals(refInt.lock.asString(), refExt.lock)
     }
-
 }

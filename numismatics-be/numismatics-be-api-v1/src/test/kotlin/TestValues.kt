@@ -7,6 +7,7 @@ import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
 import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.backend.common.models.id.*
+import ru.numismatics.backend.stub.StubValues
 
 abstract class TestValues {
 
@@ -17,45 +18,13 @@ abstract class TestValues {
             stub = RequestDebugStubs.SUCCESS
         )
 
-        val error = Error(
-            code = "err",
-            group = "request",
-            field = "name",
-            message = "wrong name"
-        )
-
-        const val PHOTO_1 = "фото1"
-        const val PHOTO_2 = "фото2"
-
-        val lotInt = Lot(
-            id = LotId(100UL),
-            ownerId = UserId("34da1510-a17b-11e9-728d-00241d9157c0"),
-            name = "Киров 650",
-            description = "650-летие основания г. Кирова",
-            isCoin = true,
-            year = 2024U,
-            catalogueNumber = "5111-0502",
-            denomination = "3 рубля",
-            weight = 31.1f,
-            condition = Condition.PF,
-            quantity = 1U,
-            photos = mutableListOf(Base64String(PHOTO_1), Base64String(PHOTO_2)),
-            countryId = CountryId(2U),
-            materialId = MaterialId(3U),
-            lock = LockId("5698409")
-        ).apply {
-            setPermissions(setOf(EntityPermission.READ, EntityPermission.UPDATE, EntityPermission.DELETE))
-        }
-
         val filledContext = NumismaticsPlatformContext(
             state = State.RUNNING,
-            errors = mutableListOf(error),
+            errors = mutableListOf(StubValues.error),
             requestType = RequestType.TEST,
             requestId = RequestId("832"),
-            entityType = EntityType.LOT,
-            entityResponse = mutableListOf(lotInt)
+            entityRequest = Lot.EMPTY,
+            entityResponse = mutableListOf(StubValues.lots.first())
         )
-
-
     }
 }

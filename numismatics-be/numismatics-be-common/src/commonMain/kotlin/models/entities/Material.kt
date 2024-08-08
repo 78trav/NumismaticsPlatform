@@ -1,8 +1,10 @@
 package ru.numismatics.backend.common.models.entities
 
+import ru.numismatics.backend.common.models.id.Identifier
 import ru.numismatics.backend.common.models.id.LockId
 import ru.numismatics.backend.common.models.id.MaterialId
 import ru.numismatics.backend.common.models.id.toMaterialId
+import ru.numismatics.backend.common.repo.rows.RowEntity
 
 data class Material(
     val id: MaterialId,
@@ -16,12 +18,14 @@ data class Material(
 
     override fun isEmpty() = (this == EMPTY)
 
-    override fun deepCopy(name: String, description: String, lock: LockId): Entity = copy(
-        name = name,
-        description = description,
-        lock = lock
-    ).apply {
+    override fun deepCopy() = copy().apply {
         this.setPermissions(this@Material.getPermissions())
+    }
+
+    override fun id() = id.id()
+
+    override fun toRowEntity(id: Identifier, lock: String): RowEntity {
+        TODO("Not yet implemented")
     }
 
     companion object {

@@ -142,9 +142,9 @@ components:
         mass:
           description: Значение массы (0 - не указано)
           $ref: '#/components/schemas/Weight'
-        material:
+        materialId:
           description: Материал изготовления
-          $ref: './api-references.yaml#/components/schemas/Material'
+          $ref: './api-core.yaml#/components/schemas/EntityId'
 #      required:
 #        - value
 #        - material
@@ -221,11 +221,11 @@ components:
               type: integer
               format: int32
               minimum: 1
-            photos:
-              description: Фотографии
-              type: array
-              items:
-                $ref: './api-core.yaml#/components/schemas/Base64String'
+#            photos:
+#              description: Фотографии
+#              type: array
+#              items:
+#                $ref: './api-core.yaml#/components/schemas/Base64String'
 
     LotResponse:
       description: Базовый объект ответа о лоте
@@ -240,9 +240,9 @@ components:
             weight:
               description: Масса
               $ref: '#/components/schemas/LotWeight'
-            country:
+            countryId:
               description: Страна
-              $ref: './api-references.yaml#/components/schemas/Country'
+              $ref: './api-core.yaml#/components/schemas/EntityId'
 #            marketPrice:
 #              description: Рыночная стоимость
 #              type: array
@@ -255,15 +255,15 @@ components:
               description: Права
               $ref: './api-core.yaml#/components/schemas/Permissions'
 
-    OneLotResponse:
-      description: Ответ с одним лотом
-      type: object
-      properties:
-        lot:
-          $ref: '#/components/schemas/LotResponse'
+#    OneLotResponse:
+#      description: Ответ с одним лотом
+#      type: object
+#      properties:
+#        lot:
+#          $ref: '#/components/schemas/LotResponse'
 
-    ManyLotsResponse:
-      description: Ответ с несколькими лотами
+    LotsResponse:
+      description: Ответ на операцию с лотом
       type: object
       properties:
         lots:
@@ -301,7 +301,7 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/OneLotResponse'
+        - $ref: '#/components/schemas/LotsResponse'
 
     # чтение лота
     LotReadObject:
@@ -323,7 +323,7 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/OneLotResponse'
+        - $ref: '#/components/schemas/LotsResponse'
 
     # изменение лота
     LotUpdateObject:
@@ -339,6 +339,7 @@ components:
               description: Идентификатор материала
               $ref: './api-core.yaml#/components/schemas/EntityId'
             lock:
+              description: Версия блокировки
               $ref: './api-core.yaml#/components/schemas/EntityLock'
 
     LotUpdateRequest:
@@ -354,7 +355,7 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/OneLotResponse'
+        - $ref: '#/components/schemas/LotsResponse'
 
     # удаление лота
     LotDeleteObject:
@@ -364,7 +365,7 @@ components:
           description: Идентификатор лота
           $ref: './api-core.yaml#/components/schemas/EntityId'
         lock:
-          description: Блокировка
+          description: Версия блокировки
           $ref: './api-core.yaml#/components/schemas/EntityLock'
 
     LotDeleteRequest:
@@ -380,34 +381,34 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/OneLotResponse'
+        - $ref: '#/components/schemas/LotsResponse'
 
     # поиск лотов
     LotSearchFilter:
       description: Структура для поиска лотов
       type: object
-      allOf:
-        - $ref: './api-core.yaml#/components/schemas/Entity'
-        - type: object
-          properties:
-            coin:
-              description: Банкнота (false) или монета (true)
-              type: boolean
-            year:
-              description: Год выпуска (0 - не учитывать)
-              $ref: '#/components/schemas/Year'
-            countryId:
-              description: Идентификатор страны-эмитента (0 - не учитывать)
-              $ref: './api-core.yaml#/components/schemas/EntityId'
-            materialId:
-              description: Идентификатор материала изготовления (0 - не учитывать)
-              $ref: './api-core.yaml#/components/schemas/EntityId'
-            denomination:
-              type: string
-              description: Номинал
-            condition:
-              description: Состояние лота
-              $ref: './api-core.yaml#/components/schemas/Condition'
+#      allOf:
+#        - $ref: './api-core.yaml#/components/schemas/Entity'
+#        - type: object
+      properties:
+        searchString:
+          type: string
+          description: Поисковая строка, которая будет искаться в сущностях
+        coin:
+          description: Банкнота (false) или монета (true)
+          type: boolean
+        year:
+          description: Год выпуска (0 - не учитывать)
+          $ref: '#/components/schemas/Year'
+        countryId:
+          description: Идентификатор страны-эмитента (0 - не учитывать)
+          $ref: './api-core.yaml#/components/schemas/EntityId'
+        materialId:
+          description: Идентификатор материала изготовления (0 - не учитывать)
+          $ref: './api-core.yaml#/components/schemas/EntityId'
+        condition:
+          description: Состояние лота
+          $ref: './api-core.yaml#/components/schemas/Condition'
 
     LotSearchRequest:
       type: object
@@ -422,7 +423,7 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
-        - $ref: '#/components/schemas/ManyLotsResponse'
+        - $ref: '#/components/schemas/LotsResponse'
 
     # инициализация и закрытие
     LotWSInitCloseResponse:

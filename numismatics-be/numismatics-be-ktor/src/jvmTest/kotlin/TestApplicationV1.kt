@@ -7,6 +7,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.*
 import io.ktor.serialization.jackson.*
+import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.withTimeout
 import ru.numismatics.platform.app.ktor.jvm.moduleJvm
@@ -21,6 +22,18 @@ abstract class TestApplicationV1(val endPoint: String) {
         crossinline function: suspend (HttpResponse) -> Unit,
     ) {
         testApplication {
+
+            environment {
+                if (config is MapApplicationConfig) {
+                    config = MapApplicationConfig(
+                        listOf(
+                            "np.repository.test" to "mem",
+                            "np.repository.prod" to "mem"
+                        )
+                    )
+                }
+            }
+
             application {
                 moduleJvm()
             }
@@ -48,6 +61,18 @@ abstract class TestApplicationV1(val endPoint: String) {
         crossinline assertBlock: (response: R) -> Unit
     ) {
         testApplication {
+            environment {
+                if (config is MapApplicationConfig) {
+                    config = MapApplicationConfig(
+                        listOf(
+                            "np.repository.test" to "mem",
+                            "np.repository.prod" to "mem"
+                        )
+                    )
+                }
+            }
+
+
             application {
                 moduleJvm()
             }

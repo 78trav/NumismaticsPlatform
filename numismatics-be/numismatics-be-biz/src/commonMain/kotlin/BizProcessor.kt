@@ -1,41 +1,43 @@
 package ru.numismatics.backend.biz
 
+import ru.numismatics.backend.biz.exec.lotCommandExecutionOperation
+import ru.numismatics.backend.biz.repo.initRepo
+import ru.numismatics.backend.biz.repo.prepareResult
 import ru.numismatics.backend.biz.stubs.*
-import ru.numismatics.backend.biz.validation.validationOperation
+import ru.numismatics.backend.biz.validation.lotValidationOperation
+import ru.numismatics.backend.biz.validation.start
 import ru.numismatics.backend.common.context.CorSettings
 import ru.numismatics.backend.common.context.NumismaticsPlatformContext
 import ru.numismatics.backend.common.context.Processor
 import ru.numismatics.backend.common.models.core.RequestType
-import ru.numismatics.platform.libs.cor.operation.CorOperationDSL
+import ru.numismatics.backend.common.models.entities.Lot
 import ru.numismatics.platform.libs.cor.operation.process
 
-class BizProcessor(corSettings: CorSettings) : Processor<NumismaticsPlatformContext>(corSettings) {
+class BizProcessor(corSettings: CorSettings<Lot>) : Processor<Lot>(corSettings) {
 
-    override suspend fun exec(context: NumismaticsPlatformContext) {
-        processes[context.requestType]?.build()?.exec(context.also { it.corSettings = corSettings })
+    override suspend fun exec(context: NumismaticsPlatformContext<Lot>) {
+        processes[context.requestType == RequestType.STUB]?.exec(
+            context.also {
+                it.corSettings = corSettings
+//                println(context.requestType)
+//                println(it)
+            }
+        )
     }
 
-
-    private val processes = mapOf<RequestType, CorOperationDSL<NumismaticsPlatformContext>>(
-
-        RequestType.STUB to process {
+    private val processes = mapOf(
+        true to process<NumismaticsPlatformContext<Lot>> {
             start()
-            stubReferenceOperation()
             stubLotOperation()
-            stubMarketPriceJob()
             stubOtherOperation()
-        },
+        }.build(),
 
-        RequestType.TEST to process {
+        false to process<NumismaticsPlatformContext<Lot>> {
             start()
-            validationOperation()
-        },
-
-        RequestType.PROD to process {
-            start()
-            validationOperation()
-
-        }
+            initRepo("Инициализация репозитория")
+            lotValidationOperation()
+            lotCommandExecutionOperation()
+            prepareResult("Подготовка ответа")
+        }.build(),
     )
-
 }
