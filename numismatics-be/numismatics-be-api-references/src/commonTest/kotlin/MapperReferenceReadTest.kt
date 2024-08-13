@@ -1,13 +1,14 @@
-package ru.numismatics.backend.api.refs.test
 
 import ru.numismatics.backend.api.references.*
 import ru.numismatics.backend.api.refs.models.*
 import ru.numismatics.backend.common.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
+import ru.numismatics.backend.common.models.core.stubs.Stubs
 import ru.numismatics.backend.common.models.entities.toTransport
-import ru.numismatics.backend.common.models.id.*
-import ru.numismatics.backend.common.stubs.Stubs
-import ru.numismatics.backend.stub.StubProcessor
+import ru.numismatics.backend.common.models.id.CountryId
+import ru.numismatics.backend.common.models.id.MaterialId
+import ru.numismatics.backend.common.models.id.RequestId
+import ru.numismatics.backend.common.models.id.SectionId
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -15,7 +16,7 @@ import ru.numismatics.backend.common.models.entities.Material as MaterialInterna
 import ru.numismatics.backend.common.models.entities.Country as CountryInternal
 import ru.numismatics.backend.common.models.entities.Section as SectionInternal
 
-class MapperReferenceReadTest : ReferenceTest(Command.READ) {
+class MapperReferenceReadTest: ReferenceTest(Command.READ) {
 
     @Test
     fun `material self from transport`() {
@@ -27,7 +28,7 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
             idType = ReadIdType.SELF,
             id = 24
         )
-        val valueId = req.id.toMaterialId()
+        val valueId = MaterialId.from(req.id)
 
         // when
         val context = NumismaticsPlatformContext()
@@ -74,7 +75,7 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
     fun `material to transport`() {
 
         // given
-        val referenceIn = StubProcessor.materials.first()
+        val referenceIn = referencesInternal[EntityType.MATERIAL] as MaterialInternal
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -102,7 +103,7 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
         assertEquals(referenceIn.probe, referenceOut.probe)
 
         assertTrue(
-            res.items?.first()?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!)
+            res.items?.first()?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!)
                 ?: false
         )
 
@@ -123,7 +124,7 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
             idType = ReadIdType.SELF,
             id = 25
         )
-        val valueId = req.id.toCountryId()
+        val valueId = CountryId.from(req.id)
 
         val context = NumismaticsPlatformContext()
 
@@ -145,7 +146,7 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
     fun `country to transport`() {
 
         // given
-        val referenceIn = StubProcessor.countries.first()
+        val referenceIn = referencesInternal[EntityType.COUNTRY] as CountryInternal
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -172,7 +173,7 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
         assertEquals(referenceIn.description, referenceOut.description)
 
         assertTrue(
-            res.items?.first()?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!)
+            res.items?.first()?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!)
                 ?: false
         )
 
@@ -193,7 +194,7 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
             idType = ReadIdType.PARENT,
             id = 26
         )
-        val valueParentId = req.id.toSectionId()
+        val valueParentId = SectionId.from(req.id)
 
         val context = NumismaticsPlatformContext()
 
@@ -216,6 +217,8 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
     fun `section to transport`() {
 
         // given
+        val referenceIn = referencesInternal[EntityType.SECTION] as SectionInternal
+
         val context = NumismaticsPlatformContext(
             command = command,
             state = State.RUNNING,
@@ -223,44 +226,45 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
             requestType = RequestType.TEST,
             requestId = RequestId("479"),
             entityType = EntityType.SECTION,
-            entityResponse = StubProcessor.sections.toMutableList()
+            entityResponse = mutableListOf(
+                referenceIn,
+                SectionInternal(
+                    id = SectionId(17UL),
+                    name = "Мультики",
+                    description = "Российская и советская мультипликация",
+                    parentId = referenceIn.parentId
+                ).apply {
+                    permissions.addAll(perm)
+                }
+            )
         )
 
         // when
         val res = context.sectionReadToTransport()
 
-        println(res)
-
         // then
-        assertEquals(StubProcessor.sections.size, res.items?.filter { it.reference is Section }?.size)
+        assertEquals(2, res.items?.filter { it.reference is Section }?.size)
 
         assertEquals(ResponseResult.SUCCESS, res.result)
 
         res.items?.forEachIndexed { index, item ->
-            val referenceIn = StubProcessor.sections[index]
+            val referenceIn = context.entityResponse[index] as SectionInternal
             val referenceOut = item.reference as Section
 
             assertEquals(referenceIn.id.toLong(), referenceOut.id)
             assertEquals(referenceIn.name, referenceOut.name)
-            assertEquals(
-                if (referenceIn.description.isEmpty()) null else referenceIn.description,
-                referenceOut.description
-            )
-            assertEquals(
-                if (referenceIn.parentId.isEmpty()) null else referenceIn.parentId.toLong(),
-                referenceOut.parentId
-            )
+            assertEquals(referenceIn.description, referenceOut.description)
+            assertEquals(referenceIn.parentId.toLong(), referenceOut.parentId)
 
             assertTrue(
-                item.permissions?.containsAll(referenceIn.permissions.toMutableSet().toTransport { it.toTransport() }!!)
-                    ?: false
+                item.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
             )
         }
-
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)
         assertEquals(error.group, res.errors?.firstOrNull()?.group)
         assertEquals(error.field, res.errors?.firstOrNull()?.field)
         assertEquals(error.message, res.errors?.firstOrNull()?.message)
     }
+
 }

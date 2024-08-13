@@ -30,13 +30,8 @@ listOf(
     "tmp",
     "api-v1",
     "api-v2",
-    "api-v2-mapper",
     "api-references",
-    "api-marketprice",
-    "common",
-    "ktor",
-    "biz",
-    "stubs"
+    "common"
 ).forEach {
     include(":numismatics-be-$it")
 }

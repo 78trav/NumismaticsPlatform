@@ -2,6 +2,7 @@ plugins {
     id("build-kmp")
 }
 
+//group = "${rootProject.group}.common"
 println("$name group: $group, version: $version")
 
 kotlin {

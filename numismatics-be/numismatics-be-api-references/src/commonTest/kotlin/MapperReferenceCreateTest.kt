@@ -1,29 +1,99 @@
-package ru.numismatics.backend.api.refs.test
 
+import kotlinx.serialization.json.Json
 import ru.numismatics.backend.api.references.*
 import ru.numismatics.backend.api.refs.models.*
 import ru.numismatics.backend.common.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
-import ru.numismatics.backend.common.models.core.EntityPermission as EntityPermissionInternal
+import ru.numismatics.backend.common.models.core.EntityPermission
+import ru.numismatics.backend.common.models.core.stubs.Stubs
 import ru.numismatics.backend.common.models.entities.toTransport
 import ru.numismatics.backend.common.models.id.*
-import ru.numismatics.backend.common.stubs.Stubs
-import ru.numismatics.backend.stub.StubProcessor
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import ru.numismatics.backend.common.models.entities.Material as MaterialInternal
 import ru.numismatics.backend.common.models.entities.Country as CountryInternal
 import ru.numismatics.backend.common.models.entities.Section as SectionInternal
+import ru.numismatics.backend.api.refs.models.EntityPermission as PermissionTransport
 
 class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
 
     @Test
+    fun `serialize ReferenceCreateRequest`() {
+
+        // given
+        val req = ReferenceCreateRequest(
+            debug = debug,
+            reference = referencesExternal[ReferenceType.MATERIAL]
+        )
+
+        // when
+        val json = Json.encodeToString(IReferenceRequest.serializer(), req)
+
+        // then
+        println(json)
+
+        assertContains(json, Regex("\"name\":\\s*\"Серебро 925\""))
+        assertContains(json, Regex("\"description\":\\s*\"Серебро 925 пробы\""))
+        assertContains(json, Regex("\"referenceType\":\\s*\"material\""))
+        assertContains(json, Regex("\"probe\":\\s*925.0"))
+        assertContains(json, Regex("\"mode\":\\s*\"stub\""))
+        assertContains(json, Regex("\"stub\":\\s*\"success\""))
+        assertContains(json, Regex("\"requestType\":\\s*\"create\""))
+    }
+
+    @Test
+    fun `serialize ReferenceUpdateResponse`() {
+
+        // given
+        val req = ReferenceUpdateResponse(
+            result = ResponseResult.SUCCESS,
+            errors = mutableListOf(error).toTransport(),
+            item = ItemResponse(
+                reference = (referencesExternal[ReferenceType.MATERIAL] as Material).copy(id = 8),
+                permissions = perm.toTransport { it.toTransport() }
+            )
+        )
+
+        // when
+        val json = Json.encodeToString(IReferenceResponse.serializer(), req)
+
+        // then
+        println(json)
+
+        assertContains(json, Regex("\"id\":\\s*8"))
+        assertContains(json, Regex("\"name\":\\s*\"Серебро 925\""))
+        assertContains(json, Regex("\"description\":\\s*\"Серебро 925 пробы\""))
+        assertContains(json, Regex("\"referenceType\":\\s*\"material\""))
+        assertContains(json, Regex("\"probe\":\\s*925.0"))
+        assertContains(json, Regex("\"result\":\\s*\"success\""))
+        assertContains(json, Regex("\"responseType\":\\s*\"update\""))
+    }
+
+    @Test
+    fun `deserialize ReferenceCreateRequest`() {
+
+        // given
+        val req = ReferenceCreateRequest(
+            debug = debug,
+            reference = referencesExternal[ReferenceType.MATERIAL]
+        )
+
+        // when
+        val json = Json.encodeToString(IReferenceRequest.serializer(), req)
+        val obj = Json.decodeFromString<IReferenceRequest>(json) as ReferenceCreateRequest
+
+        // then
+        assertEquals(req, obj)
+    }
+
+    @Test
     fun `permission internal to transport`() {
-        assertEquals(EntityPermission.CREATE, EntityPermissionInternal.CREATE.toTransport())
-        assertEquals(EntityPermission.READ, EntityPermissionInternal.READ.toTransport())
-        assertEquals(EntityPermission.UPDATE, EntityPermissionInternal.UPDATE.toTransport())
-        assertEquals(EntityPermission.DELETE, EntityPermissionInternal.DELETE.toTransport())
+        assertEquals(PermissionTransport.CREATE, EntityPermission.CREATE.toTransport())
+        assertEquals(PermissionTransport.READ, EntityPermission.READ.toTransport())
+        assertEquals(PermissionTransport.UPDATE, EntityPermission.UPDATE.toTransport())
+        assertEquals(PermissionTransport.DELETE, EntityPermission.DELETE.toTransport())
     }
 
     @Test
@@ -31,17 +101,15 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
 
         // given
         val expected = setOf(
-            EntityPermission.READ,
-            EntityPermission.UPDATE,
-            EntityPermission.DELETE
+            PermissionTransport.READ,
+            PermissionTransport.UPDATE,
+            PermissionTransport.DELETE
         )
 
         // when
-        val actual = mutableSetOf(
-            EntityPermissionInternal.READ,
-            EntityPermissionInternal.UPDATE,
-            EntityPermissionInternal.DELETE
-        ).toTransport { it.toTransport() }
+        val actual = perm
+            .toMutableSet()
+            .toTransport { it.toTransport() }
 
         // then
         assertTrue(actual?.containsAll(expected) ?: false)
@@ -51,7 +119,7 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
     fun `material from transport`() {
 
         // given
-        val reference = material
+        val reference = referencesExternal[ReferenceType.MATERIAL] as Material
 
         val req = ReferenceCreateRequest(
             debug = debug,
@@ -79,7 +147,7 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
     fun `material to transport`() {
 
         // given
-        val referenceIn = StubProcessor.materials.first()
+        val referenceIn = referencesInternal[EntityType.MATERIAL] as MaterialInternal
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -105,7 +173,7 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
         assertEquals(referenceIn.probe, referenceOut.probe)
 
         assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
+            res.item?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
         )
 
         assertEquals(1, res.errors?.size)
@@ -119,7 +187,7 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
     fun `country from transport`() {
 
         // given
-        val reference = country
+        val reference = referencesExternal[ReferenceType.COUNTRY] as Country
 
         val req = ReferenceCreateRequest(
             debug = debug,
@@ -146,7 +214,7 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
     fun `country to transport`() {
 
         // given
-        val referenceIn = StubProcessor.countries.first()
+        val referenceIn = referencesInternal[EntityType.COUNTRY] as CountryInternal
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -171,7 +239,7 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
         assertEquals(referenceIn.description, referenceOut.description)
 
         assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
+            res.item?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
         )
 
         assertEquals(1, res.errors?.size)
@@ -185,7 +253,7 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
     fun `section from transport`() {
 
         // given
-        val reference = section
+        val reference = referencesExternal[ReferenceType.SECTION] as Section
 
         val req = ReferenceCreateRequest(
             debug = debug,
@@ -213,7 +281,7 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
     fun `section to transport`() {
 
         // given
-        val referenceIn = StubProcessor.sections.first()
+        val referenceIn = referencesInternal[EntityType.SECTION] as SectionInternal
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -239,7 +307,7 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
         assertEquals(referenceIn.parentId.toLong(), referenceOut.parentId)
 
         assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
+            res.item?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false
         )
 
         assertEquals(1, res.errors?.size)
@@ -248,4 +316,5 @@ class MapperReferenceCreateTest : ReferenceTest(Command.CREATE) {
         assertEquals(error.field, res.errors?.firstOrNull()?.field)
         assertEquals(error.message, res.errors?.firstOrNull()?.message)
     }
+
 }

@@ -1,13 +1,11 @@
-package ru.numismatics.backend.api.refs.test
 
 import ru.numismatics.backend.api.references.*
 import ru.numismatics.backend.api.refs.models.*
 import ru.numismatics.backend.common.NumismaticsPlatformContext
 import ru.numismatics.backend.common.models.core.*
+import ru.numismatics.backend.common.models.core.stubs.Stubs
 import ru.numismatics.backend.common.models.entities.toTransport
 import ru.numismatics.backend.common.models.id.RequestId
-import ru.numismatics.backend.common.stubs.Stubs
-import ru.numismatics.backend.stub.StubProcessor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -15,13 +13,13 @@ import ru.numismatics.backend.common.models.entities.Material as MaterialInterna
 import ru.numismatics.backend.common.models.entities.Country as CountryInternal
 import ru.numismatics.backend.common.models.entities.Section as SectionInternal
 
-class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
+class MapperReferenceUpdateTest: ReferenceTest(Command.UPDATE) {
 
     @Test
     fun `material from transport`() {
 
         // given
-        val reference = material.copy(id = 32)
+        val reference = (referencesExternal[ReferenceType.MATERIAL] as Material).copy(id = 32)
 
         val req = ReferenceUpdateRequest(
             debug = debug,
@@ -49,7 +47,7 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
     fun `material to transport`() {
 
         // given
-        val referenceIn = StubProcessor.materials.first()
+        val referenceIn = referencesInternal[EntityType.MATERIAL] as MaterialInternal
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -74,9 +72,7 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
         assertEquals(referenceIn.description, referenceOut.description)
         assertEquals(referenceIn.probe, referenceOut.probe)
 
-        assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
-        )
+        assertTrue(res.item?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false)
 
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)
@@ -89,7 +85,7 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
     fun `country from transport`() {
 
         // given
-        val reference = country.copy(id = 1)
+        val reference = (referencesExternal[ReferenceType.COUNTRY] as Country).copy(id = 1)
 
         val req = ReferenceUpdateRequest(
             debug = debug,
@@ -116,7 +112,7 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
     fun `country to transport`() {
 
         // given
-        val referenceIn = StubProcessor.countries.first()
+        val referenceIn = referencesInternal[EntityType.COUNTRY] as CountryInternal
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -140,9 +136,7 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
         assertEquals(referenceIn.name, referenceOut.name)
         assertEquals(referenceIn.description, referenceOut.description)
 
-        assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
-        )
+        assertTrue(res.item?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false)
 
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)
@@ -155,7 +149,7 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
     fun `section from transport`() {
 
         // given
-        val reference = section.copy(id = 35)
+        val reference = (referencesExternal[ReferenceType.SECTION] as Section).copy(id = 35)
 
         val req = ReferenceUpdateRequest(
             debug = debug,
@@ -183,7 +177,7 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
     fun `section to transport`() {
 
         // given
-        val referenceIn = StubProcessor.sections.first()
+        val referenceIn = referencesInternal[EntityType.SECTION] as SectionInternal
 
         val context = NumismaticsPlatformContext(
             command = command,
@@ -208,9 +202,7 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
         assertEquals(referenceIn.description, referenceOut.description)
         assertEquals(referenceIn.parentId.toLong(), referenceOut.parentId)
 
-        assertTrue(
-            res.item?.permissions?.containsAll(referenceIn.permissions.toTransport { it.toTransport() }!!) ?: false
-        )
+        assertTrue(res.item?.permissions?.containsAll(perm.toMutableSet().toTransport { it.toTransport() }!!) ?: false)
 
         assertEquals(1, res.errors?.size)
         assertEquals(error.code, res.errors?.firstOrNull()?.code)
@@ -218,4 +210,5 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
         assertEquals(error.field, res.errors?.firstOrNull()?.field)
         assertEquals(error.message, res.errors?.firstOrNull()?.message)
     }
+
 }

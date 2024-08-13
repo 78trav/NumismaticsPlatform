@@ -24,7 +24,6 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
 
                 implementation(project(":numismatics-be-common"))
-                implementation(project(":numismatics-be-api-v2-mapper"))
             }
         }
 
