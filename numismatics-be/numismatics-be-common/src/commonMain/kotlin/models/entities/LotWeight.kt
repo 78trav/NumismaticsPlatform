@@ -9,6 +9,6 @@ data class LotWeight(
     }
 }
 
-fun LotWeight.isEmpty(): Boolean = (this == LotWeight.EMPTY)
+inline fun LotWeight.isEmpty(): Boolean = (this == LotWeight.EMPTY)
 
-fun LotWeight.isNotEmpty(): Boolean = !isEmpty()
+inline fun LotWeight.isNotEmpty(): Boolean = !isEmpty()

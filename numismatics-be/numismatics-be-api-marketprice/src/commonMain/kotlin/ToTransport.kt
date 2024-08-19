@@ -54,4 +54,3 @@ private fun State.toResult(): ResponseResult? = when (this) {
 }
 
 private fun MarketPriceInternal.toTransport() = MarketPrice(date.asString(), amount)
-

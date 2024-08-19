@@ -11,11 +11,12 @@ value class Base64String(private val value: String) {
     }
 }
 
-fun Base64String.isEmpty(): Boolean = (this == Base64String.EMPTY)
 
-fun Base64String.isNotEmpty(): Boolean = !isEmpty()
+inline fun Base64String.isEmpty(): Boolean = (this == Base64String.EMPTY)
 
-fun String?.toBase64String(): Base64String = if (this == null) Base64String.EMPTY else Base64String(this)
+inline fun Base64String.isNotEmpty(): Boolean = !isEmpty()
+
+inline fun String?.toBase64String(): Base64String = if (this == null) Base64String.EMPTY else Base64String(this)
 
 fun List<String>?.toBase64StringList() = (
         this?.filter { it.isNotEmpty() }?.map { it.toBase64String() } ?: listOf()

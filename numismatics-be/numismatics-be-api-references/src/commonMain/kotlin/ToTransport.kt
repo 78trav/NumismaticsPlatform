@@ -233,4 +233,3 @@ fun PermissionInternal.toTransport() = when (this) {
     PermissionInternal.UPDATE -> EntityPermission.UPDATE
     PermissionInternal.DELETE -> EntityPermission.DELETE
 }
-

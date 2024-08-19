@@ -66,4 +66,3 @@ class Mapper2SerializationDeserializationTest : TestValues() {
         assertEquals(null, obj.lot)
     }
 }
-

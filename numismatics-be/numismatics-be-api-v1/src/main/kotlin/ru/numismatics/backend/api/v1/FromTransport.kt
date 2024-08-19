@@ -117,4 +117,3 @@ fun LotSearchFilter?.toInternal() =
                 condition = conditionToInternal(condition?.value),
             )
         }
-

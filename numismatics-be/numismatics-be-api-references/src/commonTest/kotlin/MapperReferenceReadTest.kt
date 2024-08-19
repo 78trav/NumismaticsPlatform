@@ -1,5 +1,6 @@
 package ru.numismatics.backend.api.refs.test
 
+import kotlinx.serialization.json.Json
 import ru.numismatics.backend.api.references.*
 import ru.numismatics.backend.api.refs.models.*
 import ru.numismatics.backend.common.NumismaticsPlatformContext
@@ -9,6 +10,7 @@ import ru.numismatics.backend.common.models.id.*
 import ru.numismatics.backend.common.stubs.Stubs
 import ru.numismatics.backend.stub.StubProcessor
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import ru.numismatics.backend.common.models.entities.Material as MaterialInternal
@@ -263,4 +265,5 @@ class MapperReferenceReadTest : ReferenceTest(Command.READ) {
         assertEquals(error.field, res.errors?.firstOrNull()?.field)
         assertEquals(error.message, res.errors?.firstOrNull()?.message)
     }
+
 }

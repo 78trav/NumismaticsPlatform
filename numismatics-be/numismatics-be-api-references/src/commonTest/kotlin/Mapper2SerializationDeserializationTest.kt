@@ -80,4 +80,5 @@ class Mapper2SerializationDeserializationTest {
         // then
         assertEquals(req, obj)
     }
+
 }

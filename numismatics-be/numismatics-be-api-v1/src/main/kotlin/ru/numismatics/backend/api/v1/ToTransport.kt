@@ -37,18 +37,21 @@ fun NumismaticsPlatformContext.lotCreateToTransport() = LotCreateResponse(
 )
 
 fun NumismaticsPlatformContext.lotReadToTransport() = LotReadResponse(
+    responseType = "read",
     result = state.toResult(),
     errors = errors.toTransport(),
     lot = entityResponse.lotToTransport()
 )
 
 fun NumismaticsPlatformContext.lotUpdateToTransport() = LotUpdateResponse(
+    responseType = "update",
     result = state.toResult(),
     errors = errors.toTransport(),
     lot = entityResponse.lotToTransport()
 )
 
 fun NumismaticsPlatformContext.lotDeleteToTransport() = LotDeleteResponse(
+    responseType = "delete",
     result = state.toResult(),
     errors = errors.toTransport(),
     lot = entityResponse.lotToTransport()
@@ -60,6 +63,7 @@ fun NumismaticsPlatformContext.lotWsInitCloseToTransport() = LotWSInitCloseRespo
 )
 
 fun NumismaticsPlatformContext.lotsToTransport() = LotSearchResponse(
+    responseType = "search",
     result = state.toResult(),
     errors = errors.toTransport(),
     lots = entityResponse
@@ -147,4 +151,3 @@ private fun State.toResult(): ResponseResult? = when (this) {
     State.FINISHING -> ResponseResult.SUCCESS
     else -> null
 }
-

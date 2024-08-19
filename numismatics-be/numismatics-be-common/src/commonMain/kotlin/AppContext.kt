@@ -9,3 +9,4 @@ data class AppContext(
     val wsSessions: IWsSessionRepo = IWsSessionRepo.NONE,
     val processor: IProcessor
 )
+//) : IAppSettings

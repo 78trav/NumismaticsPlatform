@@ -15,4 +15,3 @@ val v1Mapper: JsonMapper = JsonMapper.builder().apply {
 }
 
 fun v1ResponseSerialize(response: ILotResponse): String = v1Mapper.writeValueAsString(response)
-

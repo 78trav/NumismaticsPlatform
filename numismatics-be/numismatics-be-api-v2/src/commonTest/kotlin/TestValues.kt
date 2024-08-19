@@ -64,5 +64,7 @@ abstract class TestValues {
             entityType = EntityType.LOT,
             entityResponse = mutableListOf(lotInt)
         )
+
+
     }
 }

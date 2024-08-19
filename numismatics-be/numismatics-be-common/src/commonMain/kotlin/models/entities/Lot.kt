@@ -34,6 +34,7 @@ data class Lot(
     companion object {
         val EMPTY = Lot()
     }
+
 }
 
 typealias MarketPriceHistory = MutableList<MarketPrice>

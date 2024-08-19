@@ -9,7 +9,9 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(kotlin("stdlib-common"))
+
                 implementation(project(":numismatics-be-common"))
+//                implementation(project(":ok-marketplace-stubs"))
             }
         }
         commonTest {

@@ -27,7 +27,7 @@ plugins {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 listOf(
-    "tmp",
+//    "tmp",
     "api-v1",
     "api-v2",
     "api-v2-mapper",

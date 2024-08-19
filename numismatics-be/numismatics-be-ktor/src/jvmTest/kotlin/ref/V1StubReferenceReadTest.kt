@@ -18,6 +18,8 @@ class V1StubReferenceReadTest : TestApplicationV1("ref") {
     @Test
     fun `READ country WS`() {
         // given
+        val refInt = StubProcessor.countries.first()
+
         val request = ReferenceReadRequest(
             referenceType = ReferenceType.COUNTRY,
             idType = ReadIdType.SELF,
@@ -47,6 +49,8 @@ class V1StubReferenceReadTest : TestApplicationV1("ref") {
     @Test
     fun `READ material WS`() {
         // given
+        val refInt = StubProcessor.materials.first()
+
         val request = ReferenceReadRequest(
             referenceType = ReferenceType.MATERIAL,
             idType = ReadIdType.SELF,

@@ -82,5 +82,7 @@ class V2StubMarketPriceTest() : TestApplicationV2("marketPrice") {
             assertEquals(marketPrice.date.asString(), mpExt?.date)
             assertEquals(marketPrice.amount, mpExt?.amount)
         }
+
     }
+
 }

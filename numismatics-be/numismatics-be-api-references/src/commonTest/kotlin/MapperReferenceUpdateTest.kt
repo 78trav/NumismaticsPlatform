@@ -218,4 +218,5 @@ class MapperReferenceUpdateTest : ReferenceTest(Command.UPDATE) {
         assertEquals(error.field, res.errors?.firstOrNull()?.field)
         assertEquals(error.message, res.errors?.firstOrNull()?.message)
     }
+
 }

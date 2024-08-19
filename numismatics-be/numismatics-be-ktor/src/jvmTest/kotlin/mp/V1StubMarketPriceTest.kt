@@ -154,4 +154,5 @@ class V1StubMarketPriceTest() : TestApplicationV1("marketPrice") {
         }
 
     }
+
 }
