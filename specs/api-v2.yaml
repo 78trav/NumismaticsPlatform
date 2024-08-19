@@ -14,12 +14,10 @@ servers:
 tags:
   - name: lot
     description: Элемент коллекции
-  - name: marketPrice
-    description: Рыночная стоимость
 
 paths:
 
-  /lot/create:
+  /create:
     post:
       tags:
         - lot
@@ -39,7 +37,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LotCreateResponse'
 
-  /lot/read:
+  /read:
     post:
       tags:
         - lot
@@ -59,7 +57,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LotReadResponse'
 
-  /lot/update:
+  /update:
     post:
       tags:
         - lot
@@ -79,7 +77,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LotUpdateResponse'
 
-  /lot/delete:
+  /delete:
     post:
       tags:
         - lot
@@ -99,7 +97,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LotDeleteResponse'
 
-  /lot/search:
+  /search:
     post:
       tags:
         - lot
@@ -119,15 +117,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/LotSearchResponse'
 
-  /marketPrice/create:
-    $ref: './api-market_price.yaml#/create'
-
-  /marketPrice/read:
-    $ref: './api-market_price.yaml#/read'
-
-  /marketPrice/delete:
-    $ref: './api-market_price.yaml#/delete'
-
 components:
 
   schemas:
@@ -136,11 +125,16 @@ components:
 
     ## ЛОТЫ
 
+
     ILotRequest:
       description: Базовый интерфейс для всех запросов работы с лотами
       type: object
-      allOf:
-        - $ref: './api-core.yaml#/components/schemas/IRequest'
+      properties:
+        debug:
+          $ref: './api-core.yaml#/components/schemas/Debug'
+        requestType:
+          description: Поле-дескриминатор для вычисления типа запроса
+          type: string
       discriminator:
         propertyName: requestType
         mapping:
@@ -154,15 +148,22 @@ components:
       description: Базовый интерфейс для всех ответов работы с лотами
       type: object
       allOf:
-        - $ref: './api-core.yaml#/components/schemas/IResponse'
-      discriminator:
-        propertyName: responseType
-        mapping:
-          create: '#/components/schemas/LotCreateResponse'
-          read: '#/components/schemas/LotReadResponse'
-          update: '#/components/schemas/LotUpdateResponse'
-          delete: '#/components/schemas/LotDeleteResponse'
-          search: '#/components/schemas/LotSearchResponse'
+        - $ref: './api-core.yaml#/components/schemas/Response'
+        - type: object
+          properties:
+            responseType:
+              description: Поле-дескриминатор для вычисления типа запроса
+              type: string
+          discriminator:
+            propertyName: responseType
+            mapping:
+              create: '#/components/schemas/LotCreateResponse'
+              read: '#/components/schemas/LotReadResponse'
+              update: '#/components/schemas/LotUpdateResponse'
+              delete: '#/components/schemas/LotDeleteResponse'
+              search: '#/components/schemas/LotSearchResponse'
+              ws_init: '#/components/schemas/LotWSInitCloseResponse'
+              ws_close: '#/components/schemas/LotWSInitCloseResponse'
 
     LotResponseV2:
       type: object
@@ -296,3 +297,9 @@ components:
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
         - $ref: '#/components/schemas/ManyLotsResponse'
+
+    # инициализация и закрытие
+    LotWSInitCloseResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotResponse'

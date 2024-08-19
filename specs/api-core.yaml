@@ -166,27 +166,27 @@ components:
         - cannotUpdate
         - cannotDelete
 
-    IRequest:
-      description: Базовый интерфейс для всех запросов
-      type: object
-      properties:
-        debug:
-          $ref: '#/components/schemas/Debug'
-        requestType:
-          description: Поле-дескриминатор для вычисления типа запроса
-          type: string
-      discriminator:
-        propertyName: requestType
-
-    IResponse:
-      description: Базовый интерфейс для всех ответов
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/Response'
-        - type: object
-          properties:
-            responseType:
-              description: Поле-дескриминатор для вычисления типа запроса
-              type: string
-          discriminator:
-            propertyName: responseType
+#    IRequest:
+#      description: Базовый интерфейс для всех запросов
+#      type: object
+#      properties:
+#        debug:
+#          $ref: '#/components/schemas/Debug'
+#        requestType:
+#          description: Поле-дескриминатор для вычисления типа запроса
+#          type: string
+#      discriminator:
+#        propertyName: requestType
+#
+#    IResponse:
+#      description: Базовый интерфейс для всех ответов
+#      type: object
+#      allOf:
+#        - $ref: '#/components/schemas/Response'
+#        - type: object
+#          properties:
+#            responseType:
+#              description: Поле-дескриминатор для вычисления типа запроса
+#              type: string
+#          discriminator:
+#            propertyName: responseType

@@ -24,6 +24,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
 
                 implementation(project(":numismatics-be-common"))
+                implementation(project(":numismatics-be-api-v2-mapper"))
             }
         }
 
@@ -31,6 +32,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
+
+                implementation(project(":numismatics-be-stubs"))
             }
         }
 

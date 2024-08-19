@@ -14,12 +14,10 @@ servers:
 tags:
   - name: lot
     description: Элемент коллекции
-  - name: marketPrice
-    description: Рыночная стоимость
 
 paths:
 
-  /lot/create:
+  /create:
     post:
       tags:
         - lot
@@ -39,7 +37,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LotCreateResponse'
 
-  /lot/read:
+  /read:
     post:
       tags:
         - lot
@@ -59,7 +57,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LotReadResponse'
 
-  /lot/update:
+  /update:
     post:
       tags:
         - lot
@@ -79,7 +77,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LotUpdateResponse'
 
-  /lot/delete:
+  /delete:
     post:
       tags:
         - lot
@@ -99,7 +97,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LotDeleteResponse'
 
-  /lot/search:
+  /search:
     post:
       tags:
         - lot
@@ -118,15 +116,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LotSearchResponse'
-
-  /marketPrice/create:
-    $ref: './api-market_price.yaml#/create'
-
-  /marketPrice/read:
-    $ref: './api-market_price.yaml#/read'
-
-  /marketPrice/delete:
-    $ref: './api-market_price.yaml#/delete'
 
 components:
 
@@ -150,21 +139,25 @@ components:
       description: Масса лота в граммах
       type: object
       properties:
-        value:
+        mass:
           description: Значение массы (0 - не указано)
           $ref: '#/components/schemas/Weight'
         material:
           description: Материал изготовления
           $ref: './api-references.yaml#/components/schemas/Material'
-      required:
-        - value
-        - material
+#      required:
+#        - value
+#        - material
 
     ILotRequest:
       description: Базовый интерфейс для всех запросов работы с лотами
       type: object
-      allOf:
-        - $ref: './api-core.yaml#/components/schemas/IRequest'
+      properties:
+        debug:
+          $ref: './api-core.yaml#/components/schemas/Debug'
+        requestType:
+          description: Поле-дескриминатор для вычисления типа запроса
+          type: string
       discriminator:
         propertyName: requestType
         mapping:
@@ -178,15 +171,22 @@ components:
       description: Базовый интерфейс для всех ответов работы с лотами
       type: object
       allOf:
-        - $ref: './api-core.yaml#/components/schemas/IResponse'
-      discriminator:
-        propertyName: responseType
-        mapping:
-          create: '#/components/schemas/LotCreateResponse'
-          read: '#/components/schemas/LotReadResponse'
-          update: '#/components/schemas/LotUpdateResponse'
-          delete: '#/components/schemas/LotDeleteResponse'
-          search: '#/components/schemas/LotSearchResponse'
+        - $ref: './api-core.yaml#/components/schemas/Response'
+        - type: object
+          properties:
+            responseType:
+              description: Поле-дескриминатор для вычисления типа запроса
+              type: string
+          discriminator:
+            propertyName: responseType
+            mapping:
+              create: '#/components/schemas/LotCreateResponse'
+              read: '#/components/schemas/LotReadResponse'
+              update: '#/components/schemas/LotUpdateResponse'
+              delete: '#/components/schemas/LotDeleteResponse'
+              search: '#/components/schemas/LotSearchResponse'
+              ws_init: '#/components/schemas/LotWSInitCloseResponse'
+              ws_close: '#/components/schemas/LotWSInitCloseResponse'
 
     CommonLotProperties:
       description: Общие свойства элемента коллекции
@@ -195,7 +195,7 @@ components:
         - $ref: './api-core.yaml#/components/schemas/Entity'
         - type: object
           properties:
-            isCoin:
+            coin:
               description: Банкнота (false) или монета (true)
               type: boolean
             year:
@@ -243,11 +243,11 @@ components:
             country:
               description: Страна
               $ref: './api-references.yaml#/components/schemas/Country'
-            marketPrice:
-              description: Рыночная стоимость
-              type: array
-              items:
-                $ref: './api-core.yaml#/components/schemas/MarketPrice'
+#            marketPrice:
+#              description: Рыночная стоимость
+#              type: array
+#              items:
+#                $ref: './api-core.yaml#/components/schemas/MarketPrice'
             lock:
               description: Блокировка
               $ref: './api-core.yaml#/components/schemas/EntityLock'
@@ -284,9 +284,9 @@ components:
             materialId:
               description: Идентификатор материала
               $ref: './api-core.yaml#/components/schemas/EntityId'
-            marketPrice:
-              description: Рыночная стоимость
-              $ref: './api-core.yaml#/components/schemas/MarketPrice'
+#            marketPrice:
+#              description: Рыночная стоимость
+#              $ref: './api-core.yaml#/components/schemas/MarketPrice'
 
     LotCreateRequest:
       type: object
@@ -390,7 +390,7 @@ components:
         - $ref: './api-core.yaml#/components/schemas/Entity'
         - type: object
           properties:
-            isCoin:
+            coin:
               description: Банкнота (false) или монета (true)
               type: boolean
             year:
@@ -423,3 +423,9 @@ components:
       allOf:
         - $ref: '#/components/schemas/ILotResponse'
         - $ref: '#/components/schemas/ManyLotsResponse'
+
+    # инициализация и закрытие
+    LotWSInitCloseResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ILotResponse'
